@@ -39,7 +39,7 @@ jobs:
       - name: Prisma generate
         run: npx prisma generate
       - name: Test
-        run: npm test -- --runInBand
+        run: npm test
 
   frontend:
     name: Frontend build
