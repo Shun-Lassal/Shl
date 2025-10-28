@@ -1,0 +1,14 @@
+node_modules/
+dist/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Generated Prisma artefacts
+prisma/migrations/
+.prisma/
+
+# Build metadata
+*.tsbuildinfo
