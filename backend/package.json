@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "dist/main.js",
   "scripts": {
-    "prisma:sync": "prisma generate && prisma db push",
+    "prisma:sync": "prisma generate && prisma db push --accept-data-loss",
     "dev": "nodemon --watch src --ext ts --exec \"ts-node src/main.ts\"",
     "build": "tsc",
     "prisma:generate": "prisma generate",
