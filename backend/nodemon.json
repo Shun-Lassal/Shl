@@ -1,0 +1,10 @@
+{
+  "watch": ["src", "prisma/schema.prisma"],
+  "ext": "ts,prisma",
+  "ignore": ["node_modules"],
+  "exec": "ts-node src/main.ts",
+  "events": {
+    "start": "echo \"[nodemon] ⇢ prisma migrate & generate\" && npx prisma migrate reset --force && npx prisma generate",
+    "restart": "echo \"[nodemon] ⇢ prisma migrate & generate\" && npx prisma migrate reset --force && npx prisma generate"
+  }
+}
