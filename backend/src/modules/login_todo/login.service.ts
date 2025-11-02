@@ -3,6 +3,8 @@ import { UserService } from '../user/user.service';
 import { comparePasswords } from '../../shared/bcrypt';
 import { generateToken, verifyToken } from '../../shared/jwt';
 import { SessionService } from '../session/session.service';
+import { LoginRepository } from './login.repository';
+import { User } from '../user/user.model';
 
 export class LoginService {
 
@@ -10,8 +12,15 @@ export class LoginService {
     const { email, password } = user;
     const userService = new UserService();
     const sessionService = new SessionService();
-    const existingUser = await userService.getUserByEmail(email);
-    if (existingUser && await comparePasswords(password, existingUser.password)) {
+    const loginService = new LoginRepository();
+    const existingUser: User | null = await userService.getUserByEmail(email);
+
+    if (!existingUser?.id || !existingUser.email) {
+      return false;
+    }
+
+    const hashedPassword: string = await loginService.getUserPassword(existingUser.id);
+    if (await comparePasswords(password, hashedPassword)) {
       const token = generateToken({ userId: existingUser.id, email: existingUser.email });
       sessionService.createSession(existingUser.id, token, new Date(Date.now() + 15 * 60 * 1000)); // 15 minutes
       return token;

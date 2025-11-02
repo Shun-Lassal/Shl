@@ -17,7 +17,7 @@ app.use(express.json())
 app.use('/', sharedRoutes);
 
 
-app.get("/", (req, res) => {
+app.get("/merde", (req, res) => {
   res.json({ message: "🚀 Backend Express + TS + Prisma est prêt !" })
 })
 

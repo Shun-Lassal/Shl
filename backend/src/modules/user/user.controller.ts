@@ -1,13 +1,18 @@
 import { Request, Response } from 'express';
 import { UserService } from './user.service';
 
-const service = new UserService();
+const userService = new UserService();
 
 export class UserController {
   
   static async getUsers(req: Request, res: Response) {
-    const users = await service.getUsers();
-    res.json(users);
+    try {
+      const users = await userService.getUsers();
+      res.status(200).json(users);
+    }
+    catch (e: any) {
+      res.status(400).json({ error: e.message })
+    }
   }
 
   // static async getUser(req: Request, res: Response) {

@@ -4,7 +4,6 @@
   "ignore": ["node_modules"],
   "exec": "ts-node src/main.ts",
   "events": {
-    "start": "echo \"[nodemon] ⇢ prisma migrate & generate\" && npx prisma migrate reset --force && npx prisma generate",
-    "restart": "echo \"[nodemon] ⇢ prisma migrate & generate\" && npx prisma migrate reset --force && npx prisma generate"
+    "start": "echo \"[nodemon] ⇢ prisma migrate deploy\" && npx prisma migrate deploy && npx prisma generate"
   }
 }

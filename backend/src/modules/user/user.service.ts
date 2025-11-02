@@ -1,4 +1,6 @@
+import { Role } from '@prisma/client';
 import { UserRepository } from './user.repository';
+import { User } from './user.model';
 
 export class UserService {
   private repo: UserRepository;
@@ -8,16 +10,15 @@ export class UserService {
   }
 
   async getUsers() {
-    return this.repo.findAll();
+    return await this.repo.findAll();
   }
 
-  async getUserByEmail(email: string) {
-    const user = await this.repo.findByEmail(email);
-    return user;
+  async getUserByEmail(email: string): Promise<User | null> {
+    return await this.repo.findByEmail(email);
   }
 
-  async createUser(data: { email: string; name: string; password: string }) {
-    return this.repo.create(data);
+  async getUserByName(name: string): Promise<User | null> {
+    return await this.repo.findByName(name);
   }
   
   // async getUser(id: number) {

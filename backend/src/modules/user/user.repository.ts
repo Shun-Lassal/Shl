@@ -1,23 +1,24 @@
+import { Role } from '@prisma/client';
 import { prisma } from '../../shared/prisma';
+import { User } from './user.model';
 
 export class UserRepository {
-  async findAll() {
-    return prisma.user.findMany();
+  async findAll(): Promise<User[]> {
+    return prisma.user.findMany({ omit: { password: true } });
   }
 
-  async findByName(name: string) {
-    return prisma.user.findMany({ where: { name } });
+  async findByName(name: string): Promise<User | null> {
+    return prisma.user.findUnique({ where: { name }, omit: { password: true } });
   }
 
-  async findByEmail(email: string) {
-    return prisma.user.findUnique({ where: { email } });
+  async findByEmail(email: string): Promise<User | null> {
+    return prisma.user.findUnique({ where: { email }, omit: { password: true } });
   }
 
-  async create (data: { email: string; name: string, password: string }) {
-    return prisma.user.create({ data });
-  }
-
-  async update(id: number, data: { email?: string; name?: string; password?: string }) {
+  async update(
+    id: number,
+    data: { email?: string; name?: string; password?: string; role?: Role }
+  ) {
     return prisma.user.update({ where: { id }, data });
   }
 

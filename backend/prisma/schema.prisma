@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  USER
+}
+
 model Session {
   id        Int      @id @default(autoincrement())
   userId    Int      @unique
@@ -26,8 +31,8 @@ model User {
   name      String   @unique
   email     String   @unique
   password  String
+  role      Role
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   session   Session?
 }

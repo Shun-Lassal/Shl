@@ -65,7 +65,7 @@ const apiStatusLabel = computed(() => {
 })
 
 onMounted(async () => {
-  const backendUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+  const backendUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/merde'
 
   try {
     const response = await fetch(`${backendUrl}/`)

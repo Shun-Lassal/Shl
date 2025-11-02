@@ -1,21 +1,29 @@
 import { Register } from './register.model';
-import { UserService } from '../user/user.service';
 import { hashPassword } from '../../shared/bcrypt';
+import { RegisterRepository } from './register.repository';
+import { UserService } from '../user/user.service';
 
 export class RegisterService {
 
   async register(user: Register): Promise<boolean> {
-    const { email, name, password } = user;
-    const userService = new UserService();
-    const existingUser = await userService.getUserByEmail(email);
-    if (!existingUser) {
-      const hashedPassword = await hashPassword(password);
-      const newUser = await userService.createUser({ email, name, password: hashedPassword });
-      if (newUser) {
-        return true;
-      }
+    const { email, name, password, role } = user;
+    const userService = new UserService(); 
+    const registerRepository = new RegisterRepository();
+    const existingEmailUser = await userService.getUserByEmail(email);
+    const existingNameUser = await userService.getUserByName(name);
+
+    if (existingEmailUser?.email == email) {
+      throw "User email already exists"
     }
-    return false;
+
+    if (existingNameUser?.name == name) {
+      throw "User name already exists"
+    }
+    
+    const hashedPassword = await hashPassword(password);
+    const newUser = await registerRepository.createUser(
+      { email, name, password: hashedPassword, role: role ? role : "USER" });
+    return true;
   }
   
 }
