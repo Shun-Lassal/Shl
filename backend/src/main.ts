@@ -3,14 +3,15 @@ import { prisma } from "./shared/prisma"
 import cors from "cors"
 import sharedRoutes from "./shared/routes"
 import { seedDefaultUser } from "./shared/seedDefaultUser"
-
+import cookieParser from "cookie-parser"
 seedDefaultUser();
 const app = express()
 
 const allowedOrigins = process.env.CORS_ORIGIN?.split(",") ?? [
   "http://localhost:5173",
 ]
-
+const cookieSecret = process.env.COOKIE_SECRET
+app.use(cookieParser(cookieSecret))
 app.use(cors({ origin: allowedOrigins }))
 app.use(express.json())
 

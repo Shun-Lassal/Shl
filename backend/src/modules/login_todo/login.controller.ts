@@ -10,7 +10,8 @@ export class LoginController {
       const { email, password } = req.body;
       const sessionId = await loginService.authenticate({ email, password });
       if (sessionId) {
-        res.status(200).json({ sessionId: sessionId });
+        res.status(200).cookie('sid', sessionId, {httpOnly:true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 1000*60*60*24});
+        res.status(200).json({ message: 'Login successful' });
       } else {
         res.status(401).json({ message: 'Invalid credentials' });
       }

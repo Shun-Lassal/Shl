@@ -7,6 +7,6 @@
     "strict": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "types": ["node"]
+    "types": ["node", "express", "cookie-parser", "cors"],
   }
 }
