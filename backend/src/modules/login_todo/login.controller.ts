@@ -8,9 +8,9 @@ export class LoginController {
   static async loginUser(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
-      const isAuthenticated = await loginService.authenticate({ email, password });
-      if (isAuthenticated) {
-        res.status(200).json({ token: isAuthenticated });
+      const sessionId = await loginService.authenticate({ email, password });
+      if (sessionId) {
+        res.status(200).json({ sessionId: sessionId });
       } else {
         res.status(401).json({ message: 'Invalid credentials' });
       }

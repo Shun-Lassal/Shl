@@ -21,9 +21,8 @@ export class LoginService {
 
     const hashedPassword: string = await loginService.getUserPassword(existingUser.id);
     if (await comparePasswords(password, hashedPassword)) {
-      const token = generateToken({ userId: existingUser.id, email: existingUser.email });
-      sessionService.createSession(existingUser.id, token, new Date(Date.now() + 15 * 60 * 1000)); // 15 minutes
-      return token;
+      const sessionId = await sessionService.createSession(existingUser.id, new Date(Date.now() + 15 * 60 * 1000)); // 15 minutes
+      return sessionId;
     }
     return false;
   }

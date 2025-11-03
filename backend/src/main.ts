@@ -2,8 +2,9 @@ import express from "express"
 import { prisma } from "./shared/prisma"
 import cors from "cors"
 import sharedRoutes from "./shared/routes"
+import { seedDefaultUser } from "./shared/seedDefaultUser"
 
-
+seedDefaultUser();
 const app = express()
 
 const allowedOrigins = process.env.CORS_ORIGIN?.split(",") ?? [

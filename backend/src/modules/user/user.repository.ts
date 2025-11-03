@@ -16,13 +16,13 @@ export class UserRepository {
   }
 
   async update(
-    id: number,
+    id: string,
     data: { email?: string; name?: string; password?: string; role?: Role }
   ) {
     return prisma.user.update({ where: { id }, data });
   }
 
-  async delete(id: number) {
+  async delete(id: string) {
     return prisma.user.delete({ where: { id } });
   }
 }

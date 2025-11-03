@@ -7,23 +7,28 @@ export class SessionService {
     this.repository = new SessionRepository();
   }
   
-  async createSession(userId: number, token: string, expiresAt: Date) {
-    return this.repository.create({ userId, token, expiresAt });
+  async createSession(userId: string, expiresAt: Date) {
+    const session = await this.repository.create({ userId, expiresAt });
+    return session.id;
   }
 
-  async getSessionByUserId(userId: number) {
+  async getAllSessions() {
+    return this.repository.findAllSessions()
+  }
+
+  async getSessionBySessionId(sessionId: string) {
+    return this.repository.findBySessionId(sessionId);
+  }
+
+  async getSessionByUserId(userId: string) {
     return this.repository.findByUserId(userId);
   }
 
-  async getSessionByToken(token: string) {
-    return this.repository.findByToken(token);
-  }
-
-  async deleteSessionsByUserId(userId: number) {
+  async deleteSessionsByUserId(userId: string) {
     return this.repository.deleteByUserId(userId);
   }
   
-  async updateSessionExpiration(userId: number, expiresAt: Date) {
+  async updateSessionExpiration(userId: string, expiresAt: Date) {
     return this.repository.updateExpirationDate(userId, expiresAt);
   }
 
