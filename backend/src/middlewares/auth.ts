@@ -1,18 +1,35 @@
-import { SessionService } from "../modules/session/session.service";
 import { Request, Response, NextFunction } from 'express'
+import { sessionCookieChecker } from '../shared/sessionCookie.service';
 
-const sessionService = new SessionService();
+const sessionChecker = new sessionCookieChecker();
 
-export async function authMiddleware(req: Request, res: Response, next: NextFunction) {
-    
-    const sessionCookie: string = req.cookies['sid'];
-    if (!sessionCookie) {
-        return res.status(401).json({ message: 'Unauthorized: No session cookie' });
+export async function isLoggedInMiddleware(req: Request, res: Response, next: NextFunction) {
+    try {
+
+        // On récupère le cookieSigné
+        const sessionCookie: string = req.signedCookies['sid'];
+        const session = await sessionChecker.getSessionFromCookie(sessionCookie);
+
+        const result = await sessionChecker.isSessionValid(session);
+        if(!result) {
+            throw 'Session is invalid (SHOULD NOT HAPPEN)'
+        }
+        next();
+
+    } catch (err) {
+        return res.status(401).json({error: err})
     }
-    
-    const session = await sessionService.getSessionBySessionId(sessionCookie);
-    if (!session) {
-        return res.status(401).json({ message: 'Unauthorized: Invalid session' });
-    }
 
+
+}
+
+
+export async function isAdminMiddleware() {
+    try {
+        // To do
+    }
+    catch (e)
+    {
+
+    }
 }

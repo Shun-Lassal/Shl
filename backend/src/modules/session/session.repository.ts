@@ -21,9 +21,9 @@ export class SessionRepository {
     return prisma.session.delete({ where: { userId } });
   }
 
-  async updateExpirationDate(userId: string, expiresAt: Date) {
+  async updateExpirationDate(id: string, expiresAt: Date) {
     return prisma.session.update({
-      where: { userId },
+      where: { id },
       data: { expiresAt },
     });
   }
