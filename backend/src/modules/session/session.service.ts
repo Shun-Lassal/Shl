@@ -8,6 +8,10 @@ export class SessionService {
   }
   
   async createSession(userId: string, expiresAt: Date) {
+    const existingSession = await this.repository.findByUserId(userId);
+    if (existingSession) {
+      await this.repository.deleteByUserId(userId);
+    }
     const session = await this.repository.create({ userId, expiresAt });
     return session.id;
   }
@@ -26,6 +30,16 @@ export class SessionService {
 
   async deleteSessionsByUserId(userId: string) {
     return this.repository.deleteByUserId(userId);
+  }
+
+  async deleteSessionBySessionId(sessionId: string) {
+    const existingSession = await this.repository.findBySessionId(sessionId);
+    if (!existingSession) {
+      return false;
+    }
+
+    await this.repository.deleteBySessionId(sessionId);
+    return true;
   }
   
   async updateSessionExpiration(sessionId: string, expiresAt: Date) {

@@ -11,7 +11,7 @@ export class sessionCookieChecker {
 
     async getSessionFromCookie(sessionCookie: string) {
         
-        // On récupère le cookieSigné, Si non valide
+        // On récupère le cookieSigné, Si vide
         if (!sessionCookie) {
             throw 'Unauthorized: No session cookie';
         }
@@ -28,20 +28,20 @@ export class sessionCookieChecker {
     async isSessionValid(session: Session) {
 
         if (session.expiresAt) {
+            const currDate = Date.now()
             const expiresTs = new Date(session.expiresAt).getTime();
-            const remainingMs = expiresTs - Date.now();
-
             // Si date dépassée
-            if (Date.now() > expiresTs) {
-                throw 'Unauthorized: Session expired';
+            if (currDate > expiresTs) {
+                return false;
             }
-
+            
             const FIVE_MIN_MS = 5 * 60 * 1000;
             const EXTEND_MS = 15 * 60 * 1000;
-
+            
+            const remainingMs = expiresTs - currDate;
             // Si session a moins de 5 min, on renouvelle (15min)
             if (remainingMs < FIVE_MIN_MS) {
-                const newExpiry = new Date(Date.now() + EXTEND_MS);
+                const newExpiry = new Date(currDate + EXTEND_MS);
                 await this.repo.updateExpirationDate(session.id, newExpiry);
             }
         }

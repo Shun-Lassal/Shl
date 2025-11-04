@@ -12,12 +12,15 @@ const allowedOrigins = process.env.CORS_ORIGIN?.split(",") ?? [
 ]
 const cookieSecret = process.env.COOKIE_SECRET
 app.use(cookieParser(cookieSecret))
-app.use(cors({ origin: allowedOrigins }))
+app.use(cors({ origin: allowedOrigins, credentials: true }))
 app.use(express.json())
 
 // Shared Routes
 app.use('/', sharedRoutes);
 
+app.get("/", (req, res) => {
+  res.status(200).json({message:"Salut je suis démarré"})
+})
 
 app.get("/merde", (req, res) => {
   res.json({ message: "🚀 Backend Express + TS + Prisma est prêt !" })

@@ -21,6 +21,10 @@ export class SessionRepository {
     return prisma.session.delete({ where: { userId } });
   }
 
+  async deleteBySessionId(id: string) {
+    return prisma.session.delete({ where: { id } });
+  }
+
   async updateExpirationDate(id: string, expiresAt: Date) {
     return prisma.session.update({
       where: { id },

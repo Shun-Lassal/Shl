@@ -1,7 +1,6 @@
 import { Login } from './login.model';
 import { UserService } from '../user/user.service';
 import { comparePasswords } from '../../shared/bcrypt';
-import { generateToken, verifyToken } from '../../shared/jwt';
 import { SessionService } from '../session/session.service';
 import { LoginRepository } from './login.repository';
 import { User } from '../user/user.model';
@@ -10,6 +9,14 @@ export class LoginService {
 
   async authenticate(user: Login): Promise<string | false> {
     const { email, password } = user;
+    if(!email || email.length > 128 || email.length < 10) {
+      throw "Throw: email empty, >128 or <10"
+    }
+
+    // PASSWORD A 4 POUR LE MOMENT MAIS A CHANGER EN PROD
+    if (!password || password.length > 128 || password.length < 4) {
+      throw "Throw: Password empty, >128 or <10"
+    }
     const userService = new UserService();
     const sessionService = new SessionService();
     const loginService = new LoginRepository();
@@ -27,12 +34,9 @@ export class LoginService {
     return false;
   }
 
-  async logout(token: string): Promise<void> {
+  async logout(sessionId: string): Promise<boolean> {
     const sessionService = new SessionService();
-    const { userId } = verifyToken(token);
-    if (userId) {
-      await sessionService.deleteSessionsByUserId(userId);
-    }
+    return sessionService.deleteSessionBySessionId(sessionId);
   }
   
 }

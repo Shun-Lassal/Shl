@@ -15,22 +15,29 @@ export class LoginController {
       } else {
         res.status(401).json({ message: 'Invalid credentials' });
       }
-    } catch (e: any) {
-      res.status(400).json({ error: e.message });
+    } catch (e) {
+      res.status(400).json({ error: e });
     }
   }
 
   static async logoutUser(req: Request, res: Response) {
     try {
-      const token = req.headers.authorization?.split(' ')[1];
-      if (token) {
-        await loginService.logout(token);
-        res.status(200).json({ message: 'Logged out successfully' });
-      } else {
-        res.status(400).json({ message: 'No token provided' });
+      const sessionId: string = req.cookies?.['sid'];
+      if (!sessionId) {
+        return res.status(400).json({ message: 'No session cookie provided' });
       }
+
+      const sessionRemoved = await loginService.logout(sessionId);
+      res.clearCookie('sid', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/',
+      });
+
+      res.status(200).json({ message: sessionRemoved ? 'Logged out successfully' : 'Session already terminated' });
     } catch (e: any) {
-      res.status(400).json({ error: e.message });
+      res.status(400).json({ error: e?.message ?? e });
     }
   }
 

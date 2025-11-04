@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { sessionCookieChecker } from '../shared/sessionCookie.service';
+import { SessionService } from '../modules/session/session.service';
 
 const sessionChecker = new sessionCookieChecker();
 
@@ -7,12 +8,18 @@ export async function isLoggedInMiddleware(req: Request, res: Response, next: Ne
     try {
 
         // On récupère le cookieSigné
-        const sessionCookie: string = req.signedCookies['sid'];
+        const sessionCookie: string = req.cookies?.['sid'];
+        console.log(sessionCookie);
         const session = await sessionChecker.getSessionFromCookie(sessionCookie);
 
-        const result = await sessionChecker.isSessionValid(session);
+        const result: boolean = await sessionChecker.isSessionValid(session);
         if(!result) {
-            throw 'Session is invalid (SHOULD NOT HAPPEN)'
+            const sessionService = new SessionService();
+            const oldSession = await sessionService.deleteSessionBySessionId(session.id);
+            if(!oldSession) {
+                throw 'Session is invalid'
+            }
+            throw 'Session too old'
         }
         next();
 
