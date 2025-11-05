@@ -7,6 +7,10 @@ export class UserRepository {
     return prisma.user.findMany({ omit: { password: true } });
   }
 
+  async findById(id: string): Promise<User | null> {
+    return prisma.user.findUnique({where: {id}})
+  }
+
   async findByName(name: string): Promise<User | null> {
     return prisma.user.findUnique({ where: { name }, omit: { password: true } });
   }
