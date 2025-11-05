@@ -9,3 +9,6 @@ export interface User {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+// Require the fields needed to create a user
+export type NewUser = Required<Pick<User, 'email' | 'name' | 'password' | 'role'>>;

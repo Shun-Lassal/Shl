@@ -1,6 +1,6 @@
 import { Role } from '@prisma/client';
 import { prisma } from '../../shared/prisma';
-import { User } from './user.model';
+import { NewUser, User } from './user.model';
 
 export class UserRepository {
   async findAll(): Promise<User[]> {
@@ -13,6 +13,15 @@ export class UserRepository {
 
   async findByEmail(email: string): Promise<User | null> {
     return prisma.user.findUnique({ where: { email }, omit: { password: true } });
+  }
+
+  async createUser(data: NewUser): Promise<User | null> {
+    return prisma.user.create({data: {
+      email: data.email,
+      name: data.name,
+      password: data.password,
+      role: data.role
+    }})
   }
 
   async update(
