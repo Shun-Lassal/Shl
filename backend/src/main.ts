@@ -10,7 +10,7 @@ const app = express()
 const allowedOrigins = process.env.CORS_ORIGIN?.split(",") ?? [
   "http://localhost:5173",
 ]
-const cookieSecret = process.env.COOKIE_SECRET
+const cookieSecret = process.env.COOKIE_SECRET ?? "Alleluia"
 app.use(cookieParser(cookieSecret))
 app.use(cors({ origin: allowedOrigins, credentials: true }))
 app.use(express.json())

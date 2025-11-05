@@ -8,8 +8,7 @@ export async function isLoggedInMiddleware(req: Request, res: Response, next: Ne
     try {
 
         // On récupère le cookieSigné
-        const sessionCookie: string = req.cookies?.['sid'];
-        console.log(sessionCookie);
+        const sessionCookie: string = req.signedCookies?.['sid'];
         const session = await sessionChecker.getSessionFromCookie(sessionCookie);
 
         const result: boolean = await sessionChecker.isSessionValid(session);
