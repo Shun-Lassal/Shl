@@ -25,6 +25,10 @@ export class UserService {
     return await this.repo.findByName(name);
   }
   
+  async updatePassword(userId: string, newPassword: string, oldPassword: string) {
+    // hash & vérifier old password
+    // return await this.repo.updatePassword(newPassword);
+  }
   // async getUser(id: number) {
   //   const user = await this.repo.findById(id);
   //   if (!user) throw new Error('User not found');

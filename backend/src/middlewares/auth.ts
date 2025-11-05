@@ -27,8 +27,6 @@ export async function isLoggedInMiddleware(req: Request, res: Response, next: Ne
     } catch (e) {
         return res.status(401).json({error: e})
     }
-
-
 }
 
 

@@ -5,6 +5,7 @@ import { isLoggedInMiddleware } from '../../middlewares/auth';
 const router = Router();
 
 router.get('/', isLoggedInMiddleware, UserController.getUsers);
+router.patch('/', isLoggedInMiddleware, UserController.updateUserPassword);
 // router.get('/:name', UserController.getUserByName);
 // router.get('/:id', UserController.getUser);
 // router.post('/', UserController.createUser);
