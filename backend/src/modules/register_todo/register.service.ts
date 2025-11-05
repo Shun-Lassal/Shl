@@ -1,6 +1,5 @@
 import { Register } from './register.model';
 import { hashPassword } from '../../shared/bcrypt';
-import { RegisterRepository } from './register.repository';
 import { UserService } from '../user/user.service';
 import { UserRepository } from '../user/user.repository';
 
