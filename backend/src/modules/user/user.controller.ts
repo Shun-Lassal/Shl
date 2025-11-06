@@ -19,12 +19,13 @@ export class UserController {
     try {
       const { userId, newPassword, oldPassword } = req.body
       const userService = new UserService();
-      const passwordChanged = userService.updatePassword(userId, newPassword, oldPassword);
+      const passwordChanged: Promise<boolean> = userService.updatePassword(userId, newPassword, oldPassword);
 
       if (!passwordChanged) {
         throw "Password has not changed"
       }
       
+      res.status(200).json({ message: "Password has been updated" })
     } catch (e) {
       res.status(401).json({ error: e })
     }
