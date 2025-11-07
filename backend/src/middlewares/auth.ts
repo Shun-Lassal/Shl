@@ -4,32 +4,37 @@ import { SessionService } from '../modules/session/session.service';
 import { User } from '../modules/user/user.model';
 import { UserService } from '../modules/user/user.service';
 
-const sessionChecker = new sessionCookieChecker();
 
+// Je pense que le mieux serait de tout check dans un Service et non dans le controlleur middleware auth
+// Ou est-ce déjà le mieux que je puisse faire ?
 export async function isLoggedInMiddleware(req: Request, res: Response, next: NextFunction) {
     try {
-
         // On récupère le cookieSigné
         const sessionCookie: string = req.signedCookies?.['sid'];
-        const session = await sessionChecker.getSessionFromCookie(sessionCookie);
 
+        const sessionChecker = new sessionCookieChecker();
+        const session = await sessionChecker.getSessionFromCookie(sessionCookie);
+        // Verifie si session valide / reprolonge la session
         const result: boolean = await sessionChecker.isSessionValid(session);
+
+        // session invalide
         if(!result) {
             const sessionService = new SessionService();
             const oldSession = await sessionService.deleteSessionBySessionId(session.id);
             if(!oldSession) {
-                throw 'Session is invalid'
+                console.log("An older session could not be deleted")
             }
             throw 'Session too old'
         }
-        next();
 
+        next();
     } catch (e) {
         return res.status(401).json({error: e})
     }
 }
 
-
+// Je pense que le mieux serait de tout check dans un Service et non dans le controlleur middleware auth
+// Ou est-ce déjà le mieux que je puisse faire ?
 export async function isAdminMiddleware(req: Request, res: Response, next: NextFunction) {
     try {
         const sessionCookie: string = req.signedCookies?.['sid'];

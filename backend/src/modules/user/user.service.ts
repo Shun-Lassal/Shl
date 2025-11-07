@@ -15,6 +15,11 @@ export class UserService {
   }
 
   async getUserById(id: string): Promise<User | null> {
+    
+    if (!id) {
+      throw "User id is empty"
+    }
+
     return await this.repo.findById(id);
   }
 
