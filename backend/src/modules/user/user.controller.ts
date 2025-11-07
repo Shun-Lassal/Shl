@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { UserService } from './user.service';
+import { User } from './user.model';
 
 const userService = new UserService();
 
@@ -8,6 +9,7 @@ export class UserController {
   static async getUsers(req: Request, res: Response) {
     try {
       const users = await userService.getUsers();
+      
       res.status(200).json(users);
     }
     catch (e) {
@@ -15,9 +17,32 @@ export class UserController {
     }
   }
 
-  static async updateUserPassword(req: Request, res: Response){
+  static async updateUser(req: Request, res: Response) {
     try {
-      const { userId, newPassword, oldPassword } = req.body
+
+      const id:string = req.params.id;
+      const user:User = req.body
+
+      const userService = new UserService();
+      const isUpdated = await userService.updateUser(id, user)
+
+      if (!isUpdated) {
+        throw "User has not been updated"
+      }
+
+      res.status(200).json({ message: "User has been updated" })
+    }
+    catch (e) {
+      res.status(401).json({error: e})
+    }
+  }
+
+  static async updateUserPassword(req: Request, res: Response) {
+    try {
+
+      const userId = req.params.id;
+      const { newPassword, oldPassword } = req.body
+
       const userService = new UserService();
       const passwordChanged: Promise<boolean> = userService.updatePassword(userId, newPassword, oldPassword);
 

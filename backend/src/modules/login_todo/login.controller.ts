@@ -9,13 +9,15 @@ export class LoginController {
     try {
       const { email, password } = req.body;
       const sessionId = await loginService.authenticate({ email, password });
-      if (sessionId) {
-        res.status(200)
-        .cookie('sid', sessionId, {httpOnly:true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 1000*60*60*24, signed: true})
-        .json({ message: 'Login successful' });
-      } else {
-        res.status(401).json({ message: 'Invalid credentials' });
+
+      if (!sessionId) {
+        throw 'Invalid credentials';
       }
+
+      res.status(200)
+      .cookie('sid', sessionId, {httpOnly:true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 1000*60*60*24, signed: true})
+      .json({ message: 'Login successful' });
+
     } catch (e) {
       res.status(400).json({ error: e });
     }
@@ -24,11 +26,12 @@ export class LoginController {
   static async logoutUser(req: Request, res: Response) {
     try {
       const sessionId: string = req.signedCookies?.['sid'];
-      if (!sessionId) {
-        return res.status(400).json({ message: 'No session cookie provided' });
+      const sessionRemoved = await loginService.logout(sessionId);
+      
+      if (!sessionRemoved) {
+        throw 'Session already terminated / Not valid';
       }
 
-      const sessionRemoved = await loginService.logout(sessionId);
       res.clearCookie('sid', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -36,7 +39,7 @@ export class LoginController {
         path: '/',
       });
 
-      res.status(200).json({ message: sessionRemoved ? 'Logged out successfully' : 'Session already terminated' });
+      res.status(200).json({ message: 'Logged out successfully' });
     } catch (e: any) {
       res.status(400).json({ error: e?.message ?? e });
     }

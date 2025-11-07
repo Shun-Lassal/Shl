@@ -8,11 +8,12 @@ export class SessionController {
     static async getSessions(req: Request, res: Response) {
         try {
             const sessions = await sessionService.getAllSessions();
-            if (sessions) {
-                res.status(200).json(sessions);
-            } else {
+
+            if (!sessions) {
                 throw 'No sessions created';
             }
+            
+            res.status(200).json(sessions);
         }
         catch (e) {
             res.status(400).json({ error: e })

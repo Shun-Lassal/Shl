@@ -19,10 +19,17 @@ export class RegisterService {
     if (existingNameUser?.name == name) {
       throw "User name already exists"
     }
-    
+
+    if (password.length < 3) {
+      throw "Password is too short"
+    }
+
     const hashedPassword = await hashPassword(password);
     const newUser = await userRepository.createUser(
       { email, name, password: hashedPassword, role: role ? role : "USER" });
+    if (!newUser) {
+      throw "New user haven't been created"
+    }
     return true;
   }
   

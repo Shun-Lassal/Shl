@@ -26,8 +26,28 @@ export class UserService {
     return await this.repo.findByName(name);
   }
   
+  async updateUser(id:string , user: User) {
+
+    if (!id) {
+      throw 'User id is empty'
+    }
+
+    if(!user) {
+      throw "User isn't defined"
+    }
+
+    if(!user.email && !user.name)
+    {
+      throw "User email and name not defined"
+    }
+
+    return await this.repo.update(id, user);
+
+  }
+
   async updatePassword(userId: string, newPassword: string, oldPassword: string) {
     // hash & vérifier old password
+
     if (!userId) {
       throw "UserId is empty"
     }

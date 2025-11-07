@@ -30,7 +30,7 @@ export class UserRepository {
 
   async update(
     id: string,
-    data: { email?: string; name?: string; password?: string; role?: Role }
+    data: { email?: string; name?: string; }
   ) {
     return prisma.user.update({ where: { id }, data });
   }

@@ -9,12 +9,12 @@ export class RegisterController {
     try {
       const { email, name, password, role } = req.body;
       const result = await registerService.register({email, name, password, role});
-      if (result) {
-        res.status(201).send({ message: 'User registered successfully' });
-      } else {
-        res.status(400).send({ message: 'User registration failed' });
+      
+      if (!result) {
+        throw 'User registration failed'
       }
 
+      res.status(201).send({ message: 'User registered successfully' });
     } catch (e) {
       res.status(400).json({ error: e });
     }
