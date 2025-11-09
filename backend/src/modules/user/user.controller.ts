@@ -19,12 +19,11 @@ export class UserController {
 
   static async updateUser(req: Request, res: Response) {
     try {
-
-      const id:string = req.params.id;
-      const user:User = req.body
+      const userId: string = req.params.id;
+      const user: User = req.body;
 
       const userService = new UserService();
-      const isUpdated = await userService.updateUser(id, user)
+      const isUpdated = await userService.updateUser(userId, user)
 
       if (!isUpdated) {
         throw "User has not been updated"
@@ -41,7 +40,7 @@ export class UserController {
     try {
 
       const userId = req.params.id;
-      const { newPassword, oldPassword } = req.body
+      const { newPassword, oldPassword }: { newPassword: string; oldPassword: string } = req.body;
 
       const userService = new UserService();
       const passwordChanged: Promise<boolean> = userService.updatePassword(userId, newPassword, oldPassword);
