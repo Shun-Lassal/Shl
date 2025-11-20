@@ -1,3 +1,4 @@
+import { Session } from "./session.model";
 import { SessionRepository } from "./session.repository";
 
 export class SessionService {
@@ -13,6 +14,10 @@ export class SessionService {
       await this.repository.deleteByUserId(userId);
     }
     const session = await this.repository.create({ userId, expiresAt });
+    if (!session) {
+      throw "Session could not be created";
+    }
+
     return session.id;
   }
 
@@ -33,7 +38,7 @@ export class SessionService {
   }
 
   async deleteSessionBySessionId(sessionId: string) {
-    const existingSession = await this.repository.findBySessionId(sessionId);
+    const existingSession: Session | null = await this.repository.findBySessionId(sessionId);
     if (!existingSession) {
       return false;
     }

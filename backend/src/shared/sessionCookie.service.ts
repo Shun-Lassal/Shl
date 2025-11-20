@@ -34,16 +34,12 @@ export class sessionCookieChecker {
             if (currDate > expiresTs) {
                 return false;
             }
-            
-            const FIVE_MIN_MS = 5 * 60 * 1000;
             const EXTEND_MS = 15 * 60 * 1000;
             
             const remainingMs = expiresTs - currDate;
             // Si session a moins de 5 min, on renouvelle (15min)
-            if (remainingMs < FIVE_MIN_MS) {
-                const newExpiry = new Date(currDate + EXTEND_MS);
-                await this.repo.updateExpirationDate(session.id, newExpiry);
-            }
+            const newExpiry = new Date(currDate + EXTEND_MS);
+            await this.repo.updateExpirationDate(session.id, newExpiry);
         }
 
         return true;

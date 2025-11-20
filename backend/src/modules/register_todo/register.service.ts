@@ -2,6 +2,7 @@ import { Register } from './register.model';
 import { hashPassword } from '../../shared/bcrypt';
 import { UserService } from '../user/user.service';
 import { UserRepository } from '../user/user.repository';
+import { User } from '../user/user.model';
 
 export class RegisterService {
 

@@ -80,13 +80,23 @@ export class UserService {
       throw "Passwords aren't matching"
     }
 
-    const passwordChanged = await this.repo.updatePassword(user.id, newPassword)
+    const passwordChanged: User | null = await this.repo.updatePassword(user.id, newPassword)
     if (!passwordChanged) {
       throw "User password has not been updated"
     }
-
-    return true
   }
+
+  async deleteUser(id: string) {
+    if (!id) {
+      throw "User id is empty"
+    }
+
+    const isDeleted: User | null = await this.repo.delete(id);
+    if (!isDeleted) {
+      throw "User has not been found"
+    }
+  }
+
   // async getUser(id: number) {
   //   const user = await this.repo.findById(id);
   //   if (!user) throw new Error('User not found');

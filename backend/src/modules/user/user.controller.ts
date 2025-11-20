@@ -43,13 +43,22 @@ export class UserController {
       const { newPassword, oldPassword }: { newPassword: string; oldPassword: string } = req.body;
 
       const userService = new UserService();
-      const passwordChanged: Promise<boolean> = userService.updatePassword(userId, newPassword, oldPassword);
-
-      if (!passwordChanged) {
-        throw "Password has not changed"
-      }
+      await userService.updatePassword(userId, newPassword, oldPassword);
       
       res.status(200).json({ message: "Password has been updated" })
+    } catch (e) {
+      res.status(401).json({ error: e })
+    }
+  }
+
+  static async deleteUser(req: Request, res: Response) {
+    try {
+      const userId: string = req.params.id;
+      
+      const userService = new UserService();
+      await userService.deleteUser(userId)
+      
+      res.status(200).json({ message: "User has been deleted" })
     } catch (e) {
       res.status(401).json({ error: e })
     }

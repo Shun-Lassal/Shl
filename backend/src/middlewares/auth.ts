@@ -3,7 +3,7 @@ import { sessionCookieChecker } from '../shared/sessionCookie.service';
 import { SessionService } from '../modules/session/session.service';
 import { User } from '../modules/user/user.model';
 import { UserService } from '../modules/user/user.service';
-
+import { Session } from '../modules/session/session.model';
 
 // Je pense que le mieux serait de tout check dans un Service et non dans le controlleur middleware auth
 // Ou est-ce déjà le mieux que je puisse faire ?
@@ -13,7 +13,7 @@ export async function isLoggedInMiddleware(req: Request, res: Response, next: Ne
         const sessionCookie: string = req.signedCookies?.['sid'];
 
         const sessionChecker = new sessionCookieChecker();
-        const session = await sessionChecker.getSessionFromCookie(sessionCookie);
+        const session: Session = await sessionChecker.getSessionFromCookie(sessionCookie);
         // Verifie si session valide / reprolonge la session
         const result: boolean = await sessionChecker.isSessionValid(session);
 
