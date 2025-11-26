@@ -1,4 +1,4 @@
-FROM node:20
+FROM node:24
 WORKDIR /app
 
 # Install dependencies (Prisma needs schema available at install time)

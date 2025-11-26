@@ -1,4 +1,3 @@
-import { Role } from '@prisma/client';
 import { UserRepository } from './user.repository';
 import { User } from './user.model';
 import { comparePasswords } from '../../shared/bcrypt';
