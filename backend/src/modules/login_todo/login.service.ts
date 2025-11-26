@@ -1,9 +1,9 @@
-import { Login } from './login.model';
-import { UserService } from '../user/user.service';
-import { comparePasswords } from '../../shared/bcrypt';
-import { SessionService } from '../session/session.service';
-import { LoginRepository } from './login.repository';
-import { User } from '../user/user.model';
+import { Login } from './login.model.js';
+import { UserService } from '../user/user.service.js';
+import { comparePasswords } from '../../shared/bcrypt.js';
+import { SessionService } from '../session/session.service.js';
+import { LoginRepository } from './login.repository.js';
+import { User } from '../user/user.model.js';
 
 export class LoginService {
 

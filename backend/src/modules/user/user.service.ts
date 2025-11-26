@@ -1,6 +1,6 @@
-import { UserRepository } from './user.repository';
-import { User } from './user.model';
-import { comparePasswords } from '../../shared/bcrypt';
+import { UserRepository } from './user.repository.js';
+import { User } from './user.model.js';
+import { comparePasswords } from '../../shared/bcrypt.js';
 
 export class UserService {
   private repo: UserRepository;

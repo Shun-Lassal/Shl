@@ -1,8 +1,8 @@
 import express from "express"
-import { prisma } from "./shared/prisma"
+import { prisma } from "./shared/prisma.js"
 import cors from "cors"
-import sharedRoutes from "./shared/routes"
-import { seedDefaultUser } from "./shared/seedDefaultUser"
+import sharedRoutes from "./shared/routes.js"
+import { seedDefaultUser } from "./shared/seedDefaultUser.js"
 import cookieParser from "cookie-parser"
 seedDefaultUser();
 const app = express()

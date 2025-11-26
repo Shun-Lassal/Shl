@@ -1,6 +1,6 @@
-import { RegisterService } from '../modules/register_todo/register.service';
-import { UserRepository } from '../modules/user/user.repository';
-import { hashPassword } from './bcrypt';
+import { RegisterService } from '../modules/register_todo/register.service.js';
+import { UserRepository } from '../modules/user/user.repository.js';
+import { hashPassword } from './bcrypt.js';
 
 const registerService = new RegisterService();
 const userRepository = new UserRepository();

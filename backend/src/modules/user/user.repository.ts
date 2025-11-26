@@ -1,6 +1,5 @@
-import { Role } from '@prisma/client';
-import { prisma } from '../../shared/prisma';
-import { NewUser, User } from './user.model';
+import { prisma } from '../../shared/prisma.js';
+import { NewUser, User } from './user.model.js';
 
 export class UserRepository {
   async findAll(): Promise<User[]> {

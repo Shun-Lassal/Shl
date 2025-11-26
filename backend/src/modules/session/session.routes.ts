@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { SessionController } from "./session.controller";
-import { isLoggedInMiddleware } from "../../middlewares/auth";
+import { SessionController } from "./session.controller.js";
+import { isLoggedInMiddleware } from "../../middlewares/auth.js";
 
 const router = Router();
 

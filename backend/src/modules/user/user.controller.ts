@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { UserService } from './user.service';
-import { User } from './user.model';
+import { UserService } from './user.service.js';
+import { User } from './user.model.js';
 
 const userService = new UserService();
 

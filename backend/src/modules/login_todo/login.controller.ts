@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { LoginService } from './login.service';
+import { LoginService } from './login.service.js';
 
 const loginService = new LoginService();
 
@@ -40,8 +40,8 @@ export class LoginController {
       });
 
       res.status(200).json({ message: 'Logged out successfully' });
-    } catch (e: any) {
-      res.status(400).json({ error: e?.message ?? e });
+    } catch (e) {
+      res.status(400).json({ error: e });
     }
   }
 

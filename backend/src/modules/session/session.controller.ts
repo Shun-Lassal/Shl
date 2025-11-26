@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { SessionService } from './session.service';
-import { Session } from './session.model';
+import { SessionService } from './session.service.js';
+import { Session } from './session.model.js';
 
 const sessionService = new SessionService();
 

@@ -1,10 +1,10 @@
 import { Router } from "express";
-import userRoutes from "../modules/user/user.routes";
-import sessionRoutes from "../modules/session/session.routes";
-import registerRoutes from "../modules/register_todo/register.routes";
-import loginRoutes from "../modules/login_todo/login.routes";
+import userRoutes from "../modules/user/user.routes.js";
+import sessionRoutes from "../modules/session/session.routes.js";
+import registerRoutes from "../modules/register_todo/register.routes.js";
+import loginRoutes from "../modules/login_todo/login.routes.js";
 import swaggerUi from "swagger-ui-express";
-import { swaggerSpec } from "./swagger";
+import { swaggerSpec } from "./swagger.js";
 
 const router = Router();
 

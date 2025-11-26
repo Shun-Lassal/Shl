@@ -1,5 +1,5 @@
-import { Session } from "./session.model";
-import { SessionRepository } from "./session.repository";
+import { Session } from "./session.model.js";
+import { SessionRepository } from "./session.repository.js";
 
 export class SessionService {
   private repository: SessionRepository;

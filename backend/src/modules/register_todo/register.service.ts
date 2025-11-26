@@ -1,8 +1,8 @@
-import { Register } from './register.model';
-import { hashPassword } from '../../shared/bcrypt';
-import { UserService } from '../user/user.service';
-import { UserRepository } from '../user/user.repository';
-import { User } from '../user/user.model';
+import { Register } from './register.model.js';
+import { hashPassword } from '../../shared/bcrypt.js';
+import { UserService } from '../user/user.service.js';
+import { UserRepository } from '../user/user.repository.js';
+import { User } from '../user/user.model.js';
 
 export class RegisterService {
 
