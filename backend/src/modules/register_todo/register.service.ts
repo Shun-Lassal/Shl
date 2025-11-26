@@ -2,6 +2,7 @@ import { Register } from './register.model.js';
 import { hashPassword } from '../../shared/bcrypt.js';
 import { UserService } from '../user/user.service.js';
 import { UserRepository } from '../user/user.repository.js';
+// Devrais utiliser le model NewUser de userModel.js
 import { User } from '../user/user.model.js';
 
 export class RegisterService {
