@@ -22,6 +22,8 @@ export class LobbyRepository {
         }})
     }
 
+    // Should I keep the logic here or in lobby.service ?
+    // Like, just the DB actions here, and handle the getLobbyPlayers before.
     async removePlayerFromLobby(id: string, playerId: string): Promise<Lobby> {
         const lobby: Lobby = await prisma.lobby.findUnique({
             where: { id },
@@ -32,8 +34,12 @@ export class LobbyRepository {
             throw 'Lobby not found'
         }
 
-        if (lobby.players.length < 1) {
-            throw 'There is no player in the lobby'
+        if (lobby.players.length === 1) {
+            throw 'Cannot remove the last player from the lobby';
+        }
+
+        if (!lobby.players.includes(playerId)) {
+            throw 'Player not found in lobby';
         }
 
         const updatedPlayers: Array<string> = lobby.players.filter((player: string) => player !== playerId)
