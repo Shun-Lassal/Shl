@@ -3,15 +3,17 @@ export interface Lobby {
     status: 'WAITING' | 'PLAYING' | 'ENDED',
     name: string,
     slots: number,
+    ownerId: string
     players: string[],
     password?: string,
-    gameScores?: string[]
+    gameScores?: string[],
 }
 
 export interface NewLobby {
     status: 'WAITING',
     name: string,
     slots: number,
+    ownerId: string
     players: string[],
-    password?: string
+    password?: string,
 }

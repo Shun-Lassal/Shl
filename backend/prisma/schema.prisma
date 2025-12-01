@@ -47,6 +47,7 @@ model Lobby {
   status     LobbyStatus
   name       String
   slots      Int
+  ownerId    String
   players    User[]
   password   String?
   gamescores Gamescore[]
