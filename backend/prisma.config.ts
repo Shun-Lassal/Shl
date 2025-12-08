@@ -1,11 +1,15 @@
-import { defineConfig, env } from 'prisma/config';
+import { defineConfig } from "prisma/config";
+
+const databaseUrl =
+  process.env.DATABASE_URL ??
+  "postgresql://dev:dev@localhost:5432/shl?schema=public";
 
 export default defineConfig({
-  schema: 'prisma/schema.prisma',
+  schema: "prisma/schema.prisma",
   migrations: {
-    path: 'prisma/migrations',
+    path: "prisma/migrations",
   },
   datasource: {
-    url: env('DATABASE_URL'),
+    url: databaseUrl,
   },
 });
