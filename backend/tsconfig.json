@@ -7,7 +7,6 @@
     "strict": true,
     "esModuleInterop": true,
     "moduleResolution": "nodenext",
-    "allowImportingTsExtensions": true,
     "types": [
       "node",
       "express",
