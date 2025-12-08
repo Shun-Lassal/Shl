@@ -1,5 +1,5 @@
-import { prisma } from '../../shared/prisma.js';
-import { Lobby, NewLobby } from './lobby.model.js';
+import { prisma } from "../../shared/prisma.ts";
+import type { Lobby, NewLobby } from "./lobby.model.ts";
 
 export type LobbyUpdateData = {
     status?: Lobby['status'];

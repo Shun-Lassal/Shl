@@ -1,5 +1,5 @@
-import { SessionRepository } from "../modules/session/session.repository.js";
-import { Session } from '../modules/session/session.model.js'
+import { SessionRepository } from "../modules/session/session.repository.ts";
+import type { Session } from "../modules/session/session.model.ts";
 
 export class sessionCookieChecker {
 

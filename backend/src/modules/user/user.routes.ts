@@ -1,8 +1,8 @@
-import { Router } from 'express';
-import { UserController } from './user.controller.js';
-import { isAdminMiddleware, isLoggedInMiddleware } from '../../middlewares/auth.js';
+import express from "express";
+import { UserController } from './user.controller.ts';
+import { isAdminMiddleware, isLoggedInMiddleware } from '../../middlewares/auth.ts';
 
-const router = Router();
+const router = express.Router();
 
 router.get('/', isLoggedInMiddleware, UserController.getUsers);
 

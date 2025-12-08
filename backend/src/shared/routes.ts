@@ -1,12 +1,12 @@
-import { Router } from "express";
-import userRoutes from "../modules/user/user.routes.js";
-import sessionRoutes from "../modules/session/session.routes.js";
-import registerRoutes from "../modules/register_todo/register.routes.js";
-import loginRoutes from "../modules/login_todo/login.routes.js";
+import express from "express";
+import userRoutes from "../modules/user/user.routes.ts";
+import sessionRoutes from "../modules/session/session.routes.ts";
+import registerRoutes from "../modules/register/register.routes.ts";
+import loginRoutes from "../modules/login/login.routes.ts";
 import swaggerUi from "swagger-ui-express";
-import { swaggerSpec } from "./swagger.js";
+import { swaggerSpec } from "./swagger.ts";
 
-const router = Router();
+const router = express.Router();
 
 router.use("/users", userRoutes);
 router.use("/sessions", sessionRoutes);

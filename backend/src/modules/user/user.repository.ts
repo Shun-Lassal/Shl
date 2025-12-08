@@ -1,5 +1,5 @@
-import { prisma } from '../../shared/prisma.js';
-import { NewUser, User } from './user.model.js';
+import { prisma } from "../../shared/prisma.ts";
+import type { NewUser, User } from "./user.model.ts";
 
 export class UserRepository {
   async findAll(): Promise<User[]> {

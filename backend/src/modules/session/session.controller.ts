@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import { SessionService } from './session.service.js';
-import { Session } from './session.model.js';
+import type { Request, Response } from "express";
+import { SessionService } from "./session.service.ts";
+import type { Session } from "./session.model.ts";
 
 const sessionService = new SessionService();
 

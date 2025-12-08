@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { RegisterService } from './register.service.js';
+import type { Request, Response } from "express";
+import { RegisterService } from "./register.service.ts";
 
 const registerService = new RegisterService();
 

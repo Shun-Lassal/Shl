@@ -1,4 +1,4 @@
-import type { User } from '../user/user.model.js';
+import type { User } from "../user/user.model.ts";
 
 export interface Session {
     id: string;

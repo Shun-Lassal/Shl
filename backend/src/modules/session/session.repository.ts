@@ -1,5 +1,5 @@
-import { prisma } from '../../shared/prisma.js';
-import { Session } from './session.model.js';
+import { prisma } from "../../shared/prisma.ts";
+import type { Session } from "./session.model.ts";
 export class SessionRepository {
   async create(data: { userId: string; expiresAt: Date }) {
     return prisma.session.create({ data });

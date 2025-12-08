@@ -1,8 +1,8 @@
-import { Router } from 'express';
-import { LoginController } from './login.controller.js';
-import { isLoggedInMiddleware } from '../../middlewares/auth.js';
+import express from "express";
+import { LoginController } from './login.controller.ts';
+import { isLoggedInMiddleware } from '../../middlewares/auth.ts';
 
-const router = Router();
+const router = express.Router();
 
 // Todo : Ajouter un middleware d'anti-brute force ici
 

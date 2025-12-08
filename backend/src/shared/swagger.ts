@@ -1,6 +1,6 @@
 import path from 'path';
 import swaggerJsdoc from 'swagger-jsdoc';
-
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const options = {
   definition: {
     openapi: '3.0.0',

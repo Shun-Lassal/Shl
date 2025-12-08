@@ -1,5 +1,5 @@
-import { Lobby, NewLobby } from "./lobby.model.js";
-import { LobbyRepository } from "./lobby.repository.js";
+import type { Lobby, NewLobby } from "./lobby.model.ts";
+import { LobbyRepository } from "./lobby.repository.ts";
 
 
 export class LobbyService {

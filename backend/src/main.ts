@@ -1,31 +1,30 @@
-import express from "express"
-import { prisma } from "./shared/prisma.js"
-import cors from "cors"
-import sharedRoutes from "./shared/routes.js"
-import { seedDefaultUser } from "./shared/seedDefaultUser.js"
-import cookieParser from "cookie-parser"
+import express from "express";
+import cors from "cors";
+import sharedRoutes from "./shared/routes.ts";
+import { seedDefaultUser } from "./shared/seedDefaultUser.ts";
+import cookieParser from "cookie-parser";
 seedDefaultUser();
-const app = express()
+const app = express();
 
 const allowedOrigins = process.env.CORS_ORIGIN?.split(",") ?? [
   "http://localhost:5173",
-]
-const cookieSecret = process.env.COOKIE_SECRET ?? "Alleluia"
-app.use(cookieParser(cookieSecret))
-app.use(cors({ origin: allowedOrigins, credentials: true }))
-app.use(express.json())
+];
+const cookieSecret = process.env.COOKIE_SECRET ?? "Alleluia";
+app.use(cookieParser(cookieSecret));
+app.use(cors({ origin: allowedOrigins, credentials: true }));
+app.use(express.json());
 
 // Shared Routes
-app.use('/', sharedRoutes);
+app.use("/", sharedRoutes);
 
 app.get("/", (req, res) => {
-  res.status(200).json({message:"Salut je suis démarré"})
-})
+  res.status(200).json({ message: "Salut je suis démarré" });
+});
 
 app.get("/merde", (req, res) => {
-  res.json({ message: "🚀 Backend Express + TS + Prisma est prêt !" })
-})
+  res.json({ message: "🚀 Backend Express + TS + Prisma est prêt !" });
+});
 
 app.listen(3000, () => {
-  console.log("✅ Backend running on http://localhost:3000")
-})
+  console.log("✅ Backend running on http://localhost:3000");
+});

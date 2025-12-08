@@ -1,4 +1,4 @@
-import { prisma } from '../../shared/prisma.js';
+import { prisma } from "../../shared/prisma.ts";
 
 export class LoginRepository {
   async getUserPassword(userId: string): Promise<string> {

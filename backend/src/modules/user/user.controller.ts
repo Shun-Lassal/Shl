@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import { UserService } from './user.service.js';
-import { User } from './user.model.js';
+import type { Request, Response } from "express";
+import { UserService } from "./user.service.ts";
+import type { User } from "./user.model.ts";
 
 const userService = new UserService();
 

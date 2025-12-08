@@ -4,7 +4,7 @@
   "main": "dist/main.js",
   "scripts": {
     "prisma:sync": "prisma generate && prisma db push --accept-data-loss",
-    "dev": "nodemon --watch src --ext ts --exec \"ts-node src/main.ts\"",
+    "dev": "nodemon --watch src --ext ts --exec \"ts-node-esm src/main.ts\"",
     "build": "tsc",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
