@@ -114,8 +114,8 @@ export class LobbyService {
   }
 
   private assertValidSlotCount(slots: number) {
-    if (!Number.isInteger(slots) || slots < 1) {
-      throw "Slots must be a positive integer";
+    if (!Number.isInteger(slots) || slots < 2) {
+      throw "Slots must be a positive integer or higher than 1";
     }
   }
 

@@ -95,19 +95,4 @@ export class UserService {
       throw "User has not been found"
     }
   }
-
-  // async getUser(id: number) {
-  //   const user = await this.repo.findById(id);
-  //   if (!user) throw new Error('User not found');
-  //   return user;
-  // }
-
-  // async createUser(email: string, name: string) {
-  //   // exemple logique métier : vérifier email unique
-  //   const existing = await this.repo.findAll();
-  //   if (existing.some(u => u.email === email)) {
-  //     throw new Error('Email already used');
-  //   }
-  //   return this.repo.create({ email, name });
-  // }
 }
