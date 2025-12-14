@@ -3,6 +3,7 @@ import { ValidationError, NotFoundError } from "../../shared/errors.ts";
 import { newLobbySchema, lobbySchema } from "./lobby.model.ts";
 import type { Lobby, NewLobby } from "./lobby.model.ts";
 import { LobbyRepository, type LobbyUpdateData } from "./lobby.repository.ts";
+import { emitLobbyClosed, emitLobbyUpdate } from "./lobby.realtime.ts";
 
 export class LobbyService extends BaseService {
   private repo: LobbyRepository;
@@ -14,7 +15,9 @@ export class LobbyService extends BaseService {
 
   async createLobby(data: NewLobby): Promise<Lobby> {
     const validatedData = this.validate<NewLobby>(newLobbySchema, data);
-    return this.repo.create(validatedData);
+    const lobby = await this.repo.create(validatedData);
+    emitLobbyUpdate(lobby, { systemMessage: `Lobby created by ${lobby.ownerId}` });
+    return lobby;
   }
 
   async listLobbies(options?: { skip?: number; take?: number }): Promise<Lobby[]> {
@@ -40,7 +43,28 @@ export class LobbyService extends BaseService {
     // Verify lobby exists
     await this.repo.findById(id);
 
-    return this.repo.update(id, data);
+    const changes: string[] = [];
+    if (typeof data.name !== "undefined") {
+      changes.push(`name -> ${data.name}`);
+    }
+    if (typeof data.slots !== "undefined") {
+      changes.push(`slots -> ${data.slots}`);
+    }
+    if (typeof data.password !== "undefined") {
+      changes.push(data.password ? "password updated" : "password removed");
+    }
+    if (typeof data.status !== "undefined") {
+      changes.push(`status -> ${data.status}`);
+    }
+    if (typeof data.ownerId !== "undefined") {
+      changes.push(`owner -> ${data.ownerId}`);
+    }
+
+    const lobby = await this.repo.update(id, data);
+    emitLobbyUpdate(lobby, {
+      systemMessage: changes.length ? `Lobby updated: ${changes.join(", ")}` : "Lobby updated",
+    });
+    return lobby;
   }
 
   async updateLobbyStatus(id: string, status: Lobby["status"]): Promise<Lobby> {
@@ -50,25 +74,25 @@ export class LobbyService extends BaseService {
   async updateLobbyName(id: string, name: string): Promise<Lobby> {
     const schema = lobbySchema.pick({ id: true, name: true });
     this.validate(schema, { id, name });
-    return this.repo.update(id, { name });
+    return this.updateLobby(id, { name });
   }
 
   async updateLobbySlots(id: string, slots: number): Promise<Lobby> {
     const schema = lobbySchema.pick({ id: true, slots: true });
     this.validate(schema, { id, slots });
-    return this.repo.update(id, { slots });
+    return this.updateLobby(id, { slots });
   }
 
   async updateLobbyOwner(id: string, ownerId: string): Promise<Lobby> {
     const schema = lobbySchema.pick({ id: true, ownerId: true });
     this.validate(schema, { id, ownerId });
-    return this.repo.update(id, { ownerId });
+    return this.updateLobby(id, { ownerId });
   }
 
   async updateLobbyPassword(id: string, password: string | null): Promise<Lobby> {
     const schema = lobbySchema.pick({ id: true });
     this.validate(schema, { id });
-    return this.repo.update(id, { password });
+    return this.updateLobby(id, { password });
   }
 
   async setLobbyPlayers(id: string, players: string[]): Promise<Lobby> {
@@ -80,19 +104,27 @@ export class LobbyService extends BaseService {
       throw new ValidationError(`Player count (${players.length}) exceeds lobby slots (${lobby.slots})`);
     }
 
-    return this.repo.setPlayers(id, players);
+    const updatedLobby = await this.repo.setPlayers(id, players);
+    emitLobbyUpdate(updatedLobby, {
+      systemMessage: `Lobby players set (${players.length}/${updatedLobby.slots})`,
+    });
+    return updatedLobby;
   }
 
   async addPlayerToLobby(id: string, playerId: string): Promise<Lobby> {
     const schema = lobbySchema.pick({ id: true, ownerId: true });
     this.validate(schema, { id, ownerId: playerId });
-    return this.repo.addPlayer(id, playerId);
+    const lobby = await this.repo.addPlayer(id, playerId);
+    emitLobbyUpdate(lobby, { systemMessage: `Player ${playerId} joined the lobby` });
+    return lobby;
   }
 
   async removePlayerFromLobby(id: string, playerId: string): Promise<Lobby> {
     const schema = lobbySchema.pick({ id: true, ownerId: true });
     this.validate(schema, { id, ownerId: playerId });
-    return this.repo.removePlayer(id, playerId);
+    const lobby = await this.repo.removePlayer(id, playerId);
+    emitLobbyUpdate(lobby, { systemMessage: `Player ${playerId} left the lobby` });
+    return lobby;
   }
 
   async deleteLobby(id: string): Promise<void> {
@@ -103,5 +135,6 @@ export class LobbyService extends BaseService {
     await this.repo.findById(id);
 
     await this.repo.delete(id);
+    emitLobbyClosed(id, "Lobby deleted");
   }
 }
