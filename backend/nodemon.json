@@ -2,7 +2,7 @@
   "watch": ["src", "prisma/schema.prisma"],
   "ext": "ts,prisma",
   "ignore": ["node_modules"],
-  "exec": "ts-node src/main.ts",
+  "exec": "node --loader ts-node/esm --no-warnings=ExperimentalWarning src/main.ts",
   "events": {
     "start": "echo \"[nodemon] ⇢ prisma db push --accept-data-loss\" && npx prisma db push --accept-data-loss && npx prisma generate"
   }

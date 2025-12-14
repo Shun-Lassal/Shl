@@ -1,66 +1,79 @@
-import type { Request, Response } from "express";
+import { Request, Response } from "express";
+import { BaseController } from "../../shared/base/index.ts";
 import { UserService } from "./user.service.ts";
-import type { User } from "./user.model.ts";
 
-const userService = new UserService();
+export class UserController extends BaseController {
+  private userService: UserService;
 
-export class UserController {
-  
-  static async getUsers(req: Request, res: Response) {
-    try {
-      const users = await userService.getUsers();
-      
-      res.status(200).json(users);
-    }
-    catch (e) {
-      res.status(400).json({ error: e })
-    }
+  constructor() {
+    super();
+    this.userService = new UserService();
   }
 
-  static async updateUser(req: Request, res: Response) {
-    try {
-      const userId: string = req.params.id;
-      const user: User = req.body;
+  async getUsers(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
+      const skip = req.query.skip ? parseInt(req.query.skip as string) : 0;
+      const take = req.query.take ? parseInt(req.query.take as string) : 10;
 
-      const userService = new UserService();
-      const isUpdated = await userService.updateUser(userId, user)
-
-      if (!isUpdated) {
-        throw "User has not been updated"
-      }
-
-      res.status(200).json({ message: "User has been updated" })
-    }
-    catch (e) {
-      res.status(401).json({error: e})
-    }
+      const users = await this.userService.getUsers({ skip, take });
+      this.sendSuccess(res, users, "Users retrieved successfully");
+    }, req, res);
   }
 
-  static async updateUserPassword(req: Request, res: Response) {
-    try {
-
-      const userId = req.params.id;
-      const { newPassword, oldPassword }: { newPassword: string; oldPassword: string } = req.body;
-
-      const userService = new UserService();
-      await userService.updatePassword(userId, newPassword, oldPassword);
-      
-      res.status(200).json({ message: "Password has been updated" })
-    } catch (e) {
-      res.status(401).json({ error: e })
-    }
+  async getUserById(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
+      const { id } = req.params;
+      const user = await this.userService.getUserById(id);
+      this.sendSuccess(res, user);
+    }, req, res);
   }
 
-  static async deleteUser(req: Request, res: Response) {
-    try {
-      const userId: string = req.params.id;
-      
-      const userService = new UserService();
-      await userService.deleteUser(userId)
-      
-      res.status(200).json({ message: "User has been deleted" })
-    } catch (e) {
-      res.status(401).json({ error: e })
-    }
+  async updateUser(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
+      const { id } = req.params;
+      const { email, name } = req.body;
+
+      await this.userService.updateUser(id, { email, name });
+      this.sendSuccess(res, null, "User updated successfully");
+    }, req, res);
   }
+
+  async updateUserPassword(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
+      const { id } = req.params;
+      const { newPassword, oldPassword } = req.body;
+
+      await this.userService.updatePassword(id, newPassword, oldPassword);
+      this.sendSuccess(res, null, "Password updated successfully");
+    }, req, res);
+  }
+
+  async deleteUser(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
+      const { id } = req.params;
+      await this.userService.deleteUser(id);
+      this.sendSuccess(res, null, "User deleted successfully");
+    }, req, res);
+  }
+
+  // Static methods for route handlers
+  static getUsers = (req: Request, res: Response) => {
+    new UserController().getUsers(req, res);
+  };
+
+  static getUserById = (req: Request, res: Response) => {
+    new UserController().getUserById(req, res);
+  };
+
+  static updateUser = (req: Request, res: Response) => {
+    new UserController().updateUser(req, res);
+  };
+
+  static updateUserPassword = (req: Request, res: Response) => {
+    new UserController().updateUserPassword(req, res);
+  };
+
+  static deleteUser = (req: Request, res: Response) => {
+    new UserController().deleteUser(req, res);
+  };
 }

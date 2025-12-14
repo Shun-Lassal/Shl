@@ -1,50 +1,53 @@
-import type { Request, Response } from "express";
+import { Request, Response } from "express";
+import { BaseController } from "../../shared/base/index.ts";
 import { LobbyService } from "./lobby.service.ts";
 import type { Lobby } from "./lobby.model.ts";
 import type { LobbyUpdateData } from "./lobby.repository.ts";
 
-const lobbyService = new LobbyService();
+export class LobbyController extends BaseController {
+  private lobbyService: LobbyService;
 
-export class LobbyController {
-  static async createLobby(req: Request, res: Response) {
-    try {
-      const { name, slots, ownerId, password, players } = req.body;
-      const lobby = await lobbyService.createLobby({
+  constructor() {
+    super();
+    this.lobbyService = new LobbyService();
+  }
+
+  async createLobby(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
+      const { name, slots, ownerId, password, status } = req.body;
+
+      const lobby = await this.lobbyService.createLobby({
         name,
         slots: Number(slots),
         ownerId,
         password: password ?? null,
-        players: Array.isArray(players) ? players : [],
-        status: "WAITING",
+        status: status ?? "WAITING",
       });
 
-      res.status(201).json(lobby);
-    } catch (e) {
-      res.status(400).json({ error: e });
-    }
+      this.sendSuccess(res, lobby, "Lobby created successfully", 201);
+    }, req, res);
   }
 
-  static async listLobbies(req: Request, res: Response) {
-    try {
-      const lobbies = await lobbyService.listLobbies();
-      res.status(200).json(lobbies);
-    } catch (e) {
-      res.status(400).json({ error: e });
-    }
+  async listLobbies(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
+      const skip = req.query.skip ? parseInt(req.query.skip as string) : 0;
+      const take = req.query.take ? parseInt(req.query.take as string) : 10;
+
+      const lobbies = await this.lobbyService.listLobbies({ skip, take });
+      this.sendSuccess(res, lobbies, "Lobbies retrieved successfully");
+    }, req, res);
   }
 
-  static async getLobbyById(req: Request, res: Response) {
-    try {
+  async getLobbyById(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
       const { id } = req.params;
-      const lobby = await lobbyService.getLobbyById(id);
-      res.status(200).json(lobby);
-    } catch (e) {
-      res.status(404).json({ error: e });
-    }
+      const lobby = await this.lobbyService.getLobbyById(id);
+      this.sendSuccess(res, lobby);
+    }, req, res);
   }
 
-  static async updateLobby(req: Request, res: Response) {
-    try {
+  async updateLobby(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
       const { id } = req.params;
       const { status, name, slots, ownerId, password } = req.body;
 
@@ -65,52 +68,82 @@ export class LobbyController {
         data.password = password;
       }
 
-      const lobby = await lobbyService.updateLobby(id, data);
-      res.status(200).json(lobby);
-    } catch (e) {
-      res.status(400).json({ error: e });
-    }
+      const lobby = await this.lobbyService.updateLobby(id, data);
+      this.sendSuccess(res, lobby, "Lobby updated successfully");
+    }, req, res);
   }
 
-  static async setLobbyPlayers(req: Request, res: Response) {
-    try {
+  async setLobbyPlayers(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
       const { id } = req.params;
       const { players } = req.body;
-      const lobby = await lobbyService.setLobbyPlayers(id, Array.isArray(players) ? players : []);
-      res.status(200).json(lobby);
-    } catch (e) {
-      res.status(400).json({ error: e });
-    }
+
+      const lobby = await this.lobbyService.setLobbyPlayers(
+        id,
+        Array.isArray(players) ? players : []
+      );
+
+      this.sendSuccess(res, lobby, "Lobby players updated successfully");
+    }, req, res);
   }
 
-  static async addPlayerToLobby(req: Request, res: Response) {
-    try {
+  async addPlayerToLobby(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
       const { id } = req.params;
       const { playerId } = req.body;
-      const lobby = await lobbyService.addPlayerToLobby(id, playerId);
-      res.status(200).json(lobby);
-    } catch (e) {
-      res.status(400).json({ error: e });
-    }
+
+      const lobby = await this.lobbyService.addPlayerToLobby(id, playerId);
+      this.sendSuccess(res, lobby, "Player added to lobby");
+    }, req, res);
   }
 
-  static async removePlayerFromLobby(req: Request, res: Response) {
-    try {
+  async removePlayerFromLobby(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
       const { id, playerId } = req.params;
-      const lobby = await lobbyService.removePlayerFromLobby(id, playerId);
-      res.status(200).json(lobby);
-    } catch (e) {
-      res.status(400).json({ error: e });
-    }
+
+      const lobby = await this.lobbyService.removePlayerFromLobby(id, playerId);
+      this.sendSuccess(res, lobby, "Player removed from lobby");
+    }, req, res);
   }
 
-  static async deleteLobby(req: Request, res: Response) {
-    try {
+  async deleteLobby(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
       const { id } = req.params;
-      await lobbyService.deleteLobby(id);
-      res.status(200).json({ message: "Lobby deleted successfully" });
-    } catch (e) {
-      res.status(400).json({ error: e });
-    }
+      await this.lobbyService.deleteLobby(id);
+      this.sendSuccess(res, null, "Lobby deleted successfully");
+    }, req, res);
   }
+
+  // Static methods for route handlers
+  static createLobby = (req: Request, res: Response) => {
+    new LobbyController().createLobby(req, res);
+  };
+
+  static listLobbies = (req: Request, res: Response) => {
+    new LobbyController().listLobbies(req, res);
+  };
+
+  static getLobbyById = (req: Request, res: Response) => {
+    new LobbyController().getLobbyById(req, res);
+  };
+
+  static updateLobby = (req: Request, res: Response) => {
+    new LobbyController().updateLobby(req, res);
+  };
+
+  static setLobbyPlayers = (req: Request, res: Response) => {
+    new LobbyController().setLobbyPlayers(req, res);
+  };
+
+  static addPlayerToLobby = (req: Request, res: Response) => {
+    new LobbyController().addPlayerToLobby(req, res);
+  };
+
+  static removePlayerFromLobby = (req: Request, res: Response) => {
+    new LobbyController().removePlayerFromLobby(req, res);
+  };
+
+  static deleteLobby = (req: Request, res: Response) => {
+    new LobbyController().deleteLobby(req, res);
+  };
 }

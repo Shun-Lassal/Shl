@@ -20,10 +20,7 @@ export async function isLoggedInMiddleware(req: Request, res: Response, next: Ne
         // session invalide
         if(!result) {
             const sessionService = new SessionService();
-            const oldSession = await sessionService.deleteSessionBySessionId(session.id);
-            if(!oldSession) {
-                console.log("An older session could not be deleted")
-            }
+            await sessionService.deleteSessionBySessionId(session.id);
             throw 'Session too old'
         }
 
@@ -47,11 +44,7 @@ export async function isAdminMiddleware(req: Request, res: Response, next: NextF
         }
 
         const userService = new UserService();
-        const user: User | null = await userService.getUserById(session.userId);
-
-        if (!user) {
-            throw "User doesn't exist to check if admin"
-        }
+        const user = await userService.getUserById(session.userId);
 
         if (user.role == null || user.role !== "ADMIN") {
             throw "User is not an Admin"

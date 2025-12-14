@@ -1,0 +1,7 @@
+{
+  "watch": ["src"],
+  "ext": "ts",
+  "exec": "node --loader ts-node/esm --no-warnings=ExperimentalWarning src/main.ts",
+  "delay": 500,
+  "ignore": ["node_modules", "dist", ".git"]
+}

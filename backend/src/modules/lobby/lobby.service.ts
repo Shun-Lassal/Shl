@@ -1,122 +1,107 @@
+import { BaseService } from "../../shared/base/index.ts";
+import { ValidationError, NotFoundError } from "../../shared/errors.ts";
+import { newLobbySchema, lobbySchema } from "./lobby.model.ts";
 import type { Lobby, NewLobby } from "./lobby.model.ts";
 import { LobbyRepository, type LobbyUpdateData } from "./lobby.repository.ts";
 
-
-export class LobbyService {
+export class LobbyService extends BaseService {
   private repo: LobbyRepository;
-  
+
   constructor() {
+    super();
     this.repo = new LobbyRepository();
   }
 
   async createLobby(data: NewLobby): Promise<Lobby> {
-    this.validateLobbyData(data);
-    return this.repo.createLobby({
-      ...data,
-      players: data.players ?? [],
-      password: data.password ?? null,
-    });
+    const validatedData = this.validate<NewLobby>(newLobbySchema, data);
+    return this.repo.create(validatedData);
   }
 
-  async listLobbies(): Promise<Array<Lobby>> {
-    return this.repo.listLobbies();
+  async listLobbies(options?: { skip?: number; take?: number }): Promise<Lobby[]> {
+    return this.repo.findAll(options);
   }
 
   async getLobbyById(id: string): Promise<Lobby> {
-    this.assertNonEmpty(id, "Lobby id");
-    const lobby = await this.repo.getLobbyById(id);
-    if (!lobby) {
-      throw "Lobby not found";
-    }
-    return lobby;
+    const schema = lobbySchema.pick({ id: true });
+    this.validate(schema, { id });
+    return this.repo.findById(id);
   }
 
   async getLobbyByName(name: string): Promise<Lobby | null> {
-    this.assertNonEmpty(name, "Lobby name");
-    return this.repo.getLobbyByName(name);
+    const schema = lobbySchema.pick({ name: true });
+    this.validate(schema, { name });
+    return this.repo.findByName(name);
   }
 
   async updateLobby(id: string, data: LobbyUpdateData): Promise<Lobby> {
-    this.assertNonEmpty(id, "Lobby id");
-    return this.repo.updateLobby(id, data);
+    const schema = lobbySchema.pick({ id: true });
+    this.validate(schema, { id });
+
+    // Verify lobby exists
+    await this.repo.findById(id);
+
+    return this.repo.update(id, data);
   }
 
-  async updateLobbyStatus(id: string, status: Lobby['status']): Promise<Lobby> {
-    this.assertNonEmpty(id, "Lobby id");
-    return this.repo.updateLobbyStatus(id, status);
+  async updateLobbyStatus(id: string, status: Lobby["status"]): Promise<Lobby> {
+    return this.updateLobby(id, { status });
   }
-  
+
   async updateLobbyName(id: string, name: string): Promise<Lobby> {
-    this.assertNonEmpty(id, "Lobby id");
-    this.assertNonEmpty(name, "Lobby name");
-    return this.repo.renameLobby(id, name);
+    const schema = lobbySchema.pick({ id: true, name: true });
+    this.validate(schema, { id, name });
+    return this.repo.update(id, { name });
   }
 
   async updateLobbySlots(id: string, slots: number): Promise<Lobby> {
-    this.assertNonEmpty(id, "Lobby id");
-    this.assertValidSlotCount(slots);
-    return this.repo.updateLobbySlots(id, slots);
+    const schema = lobbySchema.pick({ id: true, slots: true });
+    this.validate(schema, { id, slots });
+    return this.repo.update(id, { slots });
   }
 
   async updateLobbyOwner(id: string, ownerId: string): Promise<Lobby> {
-    this.assertNonEmpty(id, "Lobby id");
-    this.assertNonEmpty(ownerId, "Owner id");
-    return this.repo.updateLobbyOwner(id, ownerId);
+    const schema = lobbySchema.pick({ id: true, ownerId: true });
+    this.validate(schema, { id, ownerId });
+    return this.repo.update(id, { ownerId });
   }
 
   async updateLobbyPassword(id: string, password: string | null): Promise<Lobby> {
-    this.assertNonEmpty(id, "Lobby id");
-    return this.repo.updateLobbyPassword(id, password);
+    const schema = lobbySchema.pick({ id: true });
+    this.validate(schema, { id });
+    return this.repo.update(id, { password });
   }
 
-  async setLobbyPlayers(id: string, players: Array<string>): Promise<Lobby> {
-    this.assertNonEmpty(id, "Lobby id");
-    if (!Array.isArray(players)) {
-      throw "Players payload must be an array";
-    }
-    const lobby = await this.getLobbyById(id);
+  async setLobbyPlayers(id: string, players: string[]): Promise<Lobby> {
+    const schema = lobbySchema.pick({ id: true });
+    this.validate(schema, { id });
+
+    const lobby = await this.repo.findById(id);
     if (players.length > lobby.slots) {
-      throw "Player count exceeds lobby slots";
+      throw new ValidationError(`Player count (${players.length}) exceeds lobby slots (${lobby.slots})`);
     }
-    return this.repo.setLobbyPlayers(id, players);
+
+    return this.repo.setPlayers(id, players);
   }
 
   async addPlayerToLobby(id: string, playerId: string): Promise<Lobby> {
-    this.assertNonEmpty(id, "Lobby id");
-    this.assertNonEmpty(playerId, "Player id");
-    return this.repo.addPlayerToLobby(id, playerId);
+    const schema = lobbySchema.pick({ id: true, ownerId: true });
+    this.validate(schema, { id, ownerId: playerId });
+    return this.repo.addPlayer(id, playerId);
   }
 
   async removePlayerFromLobby(id: string, playerId: string): Promise<Lobby> {
-    this.assertNonEmpty(id, "Lobby id");
-    this.assertNonEmpty(playerId, "Player id");
-    return this.repo.removePlayerFromLobby(id, playerId);
+    const schema = lobbySchema.pick({ id: true, ownerId: true });
+    this.validate(schema, { id, ownerId: playerId });
+    return this.repo.removePlayer(id, playerId);
   }
 
   async deleteLobby(id: string): Promise<void> {
-    this.assertNonEmpty(id, "Lobby id");
-    await this.repo.deleteLobby(id);
-  }
+    const schema = lobbySchema.pick({ id: true });
+    this.validate(schema, { id });
 
-  private validateLobbyData(data: NewLobby) {
-    this.assertNonEmpty(data.name, "Lobby name");
-    this.assertNonEmpty(data.ownerId, "Owner id");
-    this.assertValidSlotCount(data.slots);
-    if (data.players && data.players.length > data.slots) {
-      throw "Players cannot exceed slots";
-    }
-  }
+    // Verify lobby exists
+    await this.repo.findById(id);
 
-  private assertNonEmpty(value: string | undefined, label: string) {
-    if (!value || value.trim().length === 0) {
-      throw `${label} is empty`;
-    }
+    await this.repo.delete(id);
   }
-
-  private assertValidSlotCount(slots: number) {
-    if (!Number.isInteger(slots) || slots < 2) {
-      throw "Slots must be a positive integer or higher than 1";
-    }
-  }
-
 }

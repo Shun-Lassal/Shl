@@ -1,66 +1,70 @@
+import { BaseService } from "../../shared/base/index.ts";
+import { ValidationError, ConflictError } from "../../shared/errors.ts";
+import { gameScoreSchema, newGameScoreSchema } from "./gameScore.model.ts";
 import type { GameScoreWithRelations, NewGameScore } from "./gameScore.model.ts";
 import { GameScoreRepository } from "./gameScore.repository.ts";
 
-export class GameScoreService {
+export class GameScoreService extends BaseService {
   private repo: GameScoreRepository;
 
   constructor() {
+    super();
     this.repo = new GameScoreRepository();
   }
 
-  async listGameScores(lobbyId?: string): Promise<GameScoreWithRelations[]> {
-    if (lobbyId) {
-      this.assertNonEmpty(lobbyId, "Lobby id");
-      return this.repo.findByLobby(lobbyId);
+  async listGameScores(options?: { lobbyId?: string; skip?: number; take?: number }): Promise<GameScoreWithRelations[]> {
+    if (options?.lobbyId) {
+      const schema = gameScoreSchema.pick({ lobbyId: true });
+      this.validate(schema, { lobbyId: options.lobbyId });
+      return this.repo.findByLobby(options.lobbyId);
     }
-    return this.repo.findAll();
+    return this.repo.findAll({
+      skip: options?.skip,
+      take: options?.take,
+    });
   }
 
   async getGameScore(id: string): Promise<GameScoreWithRelations> {
-    this.assertNonEmpty(id, "GameScore id");
-    const score = await this.repo.findById(id);
-    if (!score) {
-      throw "GameScore not found";
-    }
-    return score;
+    const schema = gameScoreSchema.pick({ id: true });
+    this.validate(schema, { id });
+    return this.repo.findById(id);
   }
 
   async createGameScore(data: NewGameScore): Promise<GameScoreWithRelations> {
-    this.assertNonEmpty(data.userId, "User id");
-    this.assertNonEmpty(data.lobbyId, "Lobby id");
-    this.assertValidPosition(data.position);
+    const validatedData = this.validate<NewGameScore>(newGameScoreSchema, data);
 
-    const existingScore = await this.repo.findByUserAndLobby(data.userId, data.lobbyId);
+    // Check if score already exists for this user in this lobby
+    const existingScore = await this.repo.findByUserAndLobby(
+      validatedData.userId,
+      validatedData.lobbyId
+    );
+
     if (existingScore) {
-      throw "A score already exists for this user in the lobby";
+      throw new ConflictError(
+        `User ${validatedData.userId} already has a score in lobby ${validatedData.lobbyId}`
+      );
     }
 
-    return this.repo.create(data);
+    return this.repo.create(validatedData);
   }
 
   async updateGameScorePosition(id: string, position: number): Promise<GameScoreWithRelations> {
-    this.assertNonEmpty(id, "GameScore id");
-    this.assertValidPosition(position);
+    const schema = gameScoreSchema.pick({ id: true, position: true });
+    this.validate(schema, { id, position });
 
-    await this.getGameScore(id);
-    return this.repo.updatePosition(id, position);
+    // Verify the score exists
+    await this.repo.findById(id);
+
+    return this.repo.update(id, { position });
   }
 
   async deleteGameScore(id: string): Promise<void> {
-    this.assertNonEmpty(id, "GameScore id");
-    await this.getGameScore(id);
-    await this.repo.deleteById(id);
-  }
+    const schema = gameScoreSchema.pick({ id: true });
+    this.validate(schema, { id });
 
-  private assertNonEmpty(value: string | undefined, label: string) {
-    if (!value || value.trim().length === 0) {
-      throw `${label} is empty`;
-    }
-  }
+    // Verify the score exists
+    await this.repo.findById(id);
 
-  private assertValidPosition(position: number) {
-    if (!Number.isInteger(position) || position < 1) {
-      throw "Position must be a positive integer";
-    }
+    await this.repo.delete(id);
   }
 }

@@ -1,34 +1,48 @@
-import { prisma } from "../../shared/prisma.ts";
+import { BaseRepository } from "../../shared/base/index.ts";
+import { NotFoundError } from "../../shared/errors.ts";
 import type { Session } from "./session.model.ts";
-export class SessionRepository {
-  async create(data: { userId: string; expiresAt: Date }) {
-    return prisma.session.create({ data });
+
+export class SessionRepository extends BaseRepository {
+  async create(data: { userId: string; expiresAt: Date }): Promise<Session> {
+    return this.db.session.create({ data });
   }
 
-  async findAllSessions() {
-    return prisma.session.findMany();
+  async findAll(): Promise<Session[]> {
+    return this.db.session.findMany();
   }
 
-  async findBySessionId(id: string) {
-    return prisma.session.findUnique({ where: { id } });
+  async findById(id: string): Promise<Session> {
+    const session = await this.db.session.findUnique({ where: { id } });
+    if (!session) {
+      throw new NotFoundError(`Session ${id} not found`);
+    }
+    return session;
   }
 
-  async findByUserId(userId: string) {
-    return prisma.session.findUnique({ where: { userId } });
+  async findByUserId(userId: string): Promise<Session | null> {
+    return this.db.session.findUnique({ where: { userId } });
   }
 
-  async deleteByUserId(userId: string) {
-    return prisma.session.delete({ where: { userId } });
+  async delete(id: string): Promise<Session> {
+    return this.db.session.delete({ where: { id } });
   }
 
-  async deleteBySessionId(id: string) {
-    return prisma.session.delete({ where: { id } });
+  async deleteByUserId(userId: string): Promise<Session | null> {
+    return this.db.session.delete({ where: { userId } }).catch(() => null);
   }
 
-  async updateExpirationDate(id: string, expiresAt: Date) {
-    return prisma.session.update({
+  async update(id: string, data: { expiresAt: Date }): Promise<Session> {
+    return this.db.session.update({
       where: { id },
-      data: { expiresAt },
+      data,
     });
+  }
+
+  async exists(id: string): Promise<boolean> {
+    const session = await this.db.session.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    return !!session;
   }
 }

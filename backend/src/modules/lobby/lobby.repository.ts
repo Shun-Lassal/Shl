@@ -1,149 +1,152 @@
-import { prisma } from "../../shared/prisma.ts";
+import { BaseRepository } from "../../shared/base/index.ts";
+import { NotFoundError, ValidationError } from "../../shared/errors.ts";
 import type { Lobby, NewLobby } from "./lobby.model.ts";
 
 export type LobbyUpdateData = {
-    status?: Lobby['status'];
-    name?: string;
-    slots?: number;
-    ownerId?: string;
-    password?: string | null;
+  status?: Lobby["status"];
+  name?: string;
+  slots?: number;
+  ownerId?: string;
+  password?: string | null;
 };
 
-export class LobbyRepository {
+export class LobbyRepository extends BaseRepository {
+  async create(data: NewLobby): Promise<Lobby> {
+    return this.db.lobby.create({
+      data: {
+        status: data.status,
+        name: data.name,
+        slots: data.slots,
+        ownerId: data.ownerId,
+        password: data.password ?? null,
+      },
+    });
+  }
 
-    async createLobby(data: NewLobby): Promise<Lobby> {
-        return prisma.lobby.create({
-            data: {
-                status: data.status,
-                name: data.name,
-                slots: data.slots,
-                ownerId: data.ownerId,
-                players: data.players ?? [],
-                password: data.password ?? null,
-            },
-        });
+  async findAll(options?: { skip?: number; take?: number }): Promise<Lobby[]> {
+    return this.db.lobby.findMany({
+      ...options,
+    });
+  }
+
+  async findById(id: string): Promise<Lobby> {
+    const lobby = await this.db.lobby.findUnique({
+      where: { id },
+      include: { players: true },
+    });
+    if (!lobby) {
+      throw new NotFoundError(`Lobby ${id} not found`);
+    }
+    return lobby as Lobby;
+  }
+
+  async findByName(name: string): Promise<Lobby | null> {
+    return this.db.lobby.findFirst({
+      where: { name },
+      include: { players: true },
+    }) as Promise<Lobby | null>;
+  }
+
+  async update(id: string, data: LobbyUpdateData): Promise<Lobby> {
+    const updateData: Record<string, unknown> = {};
+
+    if (typeof data.status !== "undefined") {
+      updateData.status = data.status;
+    }
+    if (typeof data.name !== "undefined") {
+      updateData.name = data.name;
+    }
+    if (typeof data.slots !== "undefined") {
+      updateData.slots = data.slots;
+    }
+    if (typeof data.ownerId !== "undefined") {
+      updateData.ownerId = data.ownerId;
+    }
+    if (typeof data.password !== "undefined") {
+      updateData.password = data.password;
     }
 
-    async listLobbies(): Promise<Array<Lobby>> {
-        return prisma.lobby.findMany();
+    if (Object.keys(updateData).length === 0) {
+      throw new ValidationError("No update data provided");
     }
 
-    async getLobbyById(id: string): Promise<Lobby | null> {
-        return prisma.lobby.findUnique({ where: { id } });
+    return this.db.lobby.update({
+      where: { id },
+      data: updateData,
+      include: { players: true },
+    }) as Promise<Lobby>;
+  }
+
+  async setPlayers(id: string, playerIds: string[]): Promise<Lobby> {
+    return this.db.lobby.update({
+      where: { id },
+      data: {
+        players: {
+          set: playerIds.map((id) => ({ id })),
+        },
+      },
+      include: { players: true },
+    }) as Promise<Lobby>;
+  }
+
+  async addPlayer(id: string, playerId: string): Promise<Lobby> {
+    const lobby = await this.findById(id);
+    const playerExists = (lobby as any).players?.some((p: any) => p.id === playerId);
+
+    if (playerExists) {
+      return lobby;
     }
 
-    async getLobbyByName(name: string): Promise<Lobby | null> {
-        return prisma.lobby.findUnique({ where: { name } });
+    return this.db.lobby.update({
+      where: { id },
+      data: {
+        players: {
+          connect: { id: playerId },
+        },
+      },
+      include: { players: true },
+    }) as Promise<Lobby>;
+  }
+
+  async removePlayer(id: string, playerId: string): Promise<Lobby> {
+    const lobby = await this.findById(id);
+    const players = (lobby as any).players as any[];
+
+    if (!players.some((p) => p.id === playerId)) {
+      throw new NotFoundError("Player not found in lobby");
     }
 
-    async updateLobby(id: string, data: LobbyUpdateData): Promise<Lobby> {
-        const updateData: Record<string, unknown> = {};
-
-        if (typeof data.status !== 'undefined') {
-            updateData.status = data.status;
-        }
-        if (typeof data.name !== 'undefined') {
-            updateData.name = data.name;
-        }
-        if (typeof data.slots !== 'undefined') {
-            updateData.slots = data.slots;
-        }
-        if (typeof data.ownerId !== 'undefined') {
-            updateData.ownerId = data.ownerId;
-        }
-        if (typeof data.password !== 'undefined') {
-            updateData.password = data.password;
-        }
-
-        if (Object.keys(updateData).length === 0) {
-            throw new Error('No lobby update data provided');
-        }
-
-        return prisma.lobby.update({
-            where: { id },
-            data: updateData,
-        });
+    if (players.length === 1) {
+      throw new ValidationError("Cannot remove the last player from the lobby");
     }
 
-    async renameLobby(id: string, newName: string): Promise<Lobby> {
-        return this.updateLobby(id, { name: newName });
+    if (lobby.ownerId === playerId) {
+      throw new ValidationError("Cannot remove the owner from the lobby");
     }
 
-    async updateLobbyStatus(id: string, newStatus: Lobby['status']): Promise<Lobby> {
-        return this.updateLobby(id, { status: newStatus });
-    }
+    return this.db.lobby.update({
+      where: { id },
+      data: {
+        players: {
+          disconnect: { id: playerId },
+        },
+      },
+      include: { players: true },
+    }) as Promise<Lobby>;
+  }
 
-    async updateLobbySlots(id: string, slots: number): Promise<Lobby> {
-        return this.updateLobby(id, { slots });
-    }
+  async delete(id: string): Promise<Lobby> {
+    return this.db.lobby.delete({
+      where: { id },
+      include: { players: true },
+    }) as Promise<Lobby>;
+  }
 
-    async updateLobbyOwner(id: string, ownerId: string): Promise<Lobby> {
-        return this.updateLobby(id, { ownerId });
-    }
-
-    async updateLobbyPassword(id: string, password: string | null): Promise<Lobby> {
-        return this.updateLobby(id, { password });
-    }
-
-    async setLobbyPlayers(id: string, players: Array<string>): Promise<Lobby> {
-        return prisma.lobby.update({
-            where: { id },
-            data: { players: { set: players } },
-        });
-    }
-
-    async addPlayerToLobby(id: string, playerId: string): Promise<Lobby> {
-        const lobby = await this.getLobbyOrThrow(id);
-
-        if (lobby.players.includes(playerId)) {
-            return lobby;
-        }
-
-        if (lobby.players.length >= lobby.slots) {
-            throw new Error('Lobby is already full');
-        }
-
-        return prisma.lobby.update({
-            where: { id },
-            data: { players: { push: playerId } },
-        });
-    }
-
-    async removePlayerFromLobby(id: string, playerId: string): Promise<Lobby> {
-        const lobby = await this.getLobbyOrThrow(id);
-
-        if (!lobby.players.includes(playerId)) {
-            throw new Error('Player not found in lobby');
-        }
-
-        if (lobby.players.length === 1) {
-            throw new Error('Cannot remove the last player from the lobby');
-        }
-
-        if (lobby.ownerId === playerId) {
-            throw new Error('Cannot remove the owner from the lobby');
-        }
-
-        const updatedPlayers = lobby.players.filter((player) => player !== playerId);
-
-        return prisma.lobby.update({
-            where: { id },
-            data: { players: { set: updatedPlayers } },
-        });
-    }
-
-    async deleteLobby(id: string): Promise<Lobby> {
-        return prisma.lobby.delete({ where: { id } });
-    }
-
-    private async getLobbyOrThrow(id: string): Promise<Lobby> {
-        const lobby = await this.getLobbyById(id);
-
-        if (!lobby) {
-            throw new Error('Lobby not found');
-        }
-
-        return lobby;
-    }
-
+  async exists(id: string): Promise<boolean> {
+    const lobby = await this.db.lobby.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    return !!lobby;
+  }
 }

@@ -1,48 +1,56 @@
-import type { Request, Response } from "express";
+import { Request, Response } from "express";
+import { BaseController } from "../../shared/base/index.ts";
 import { LoginService } from "./login.service.ts";
 
-const loginService = new LoginService();
+export class LoginController extends BaseController {
+  private loginService: LoginService;
 
-export class LoginController {
-
-  static async loginUser(req: Request, res: Response) {
-    try {
-      const { email, password } = req.body;
-      const sessionId = await loginService.authenticate({ email, password });
-
-      if (!sessionId) {
-        throw 'Invalid credentials';
-      }
-
-      res.status(200)
-      .cookie('sid', sessionId, {httpOnly:true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 1000*60*60*24, signed: true})
-      .json({ message: 'Login successful' });
-
-    } catch (e) {
-      res.status(400).json({ error: e });
-    }
+  constructor() {
+    super();
+    this.loginService = new LoginService();
   }
 
-  static async logoutUser(req: Request, res: Response) {
-    try {
-      const sessionId: string = req.signedCookies?.['sid'];
-      const sessionRemoved = await loginService.logout(sessionId);
-      
-      if (!sessionRemoved) {
-        throw 'Session already terminated / Not valid';
-      }
+  async loginUser(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
+      const { email, password } = req.body;
+      const sessionId = await this.loginService.authenticate({ email, password });
 
-      res.clearCookie('sid', {
+      res
+        .status(200)
+        .cookie("sid", sessionId, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+          maxAge: 1000 * 60 * 60 * 24,
+          signed: true,
+        });
+
+      this.sendSuccess(res, null, "Login successful", 200);
+    }, req, res);
+  }
+
+  async logoutUser(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
+      const sessionId: string = req.signedCookies?.["sid"];
+      await this.loginService.logout(sessionId);
+
+      res.clearCookie("sid", {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/',
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        path: "/",
       });
 
-      res.status(200).json({ message: 'Logged out successfully' });
-    } catch (e) {
-      res.status(400).json({ error: e });
-    }
+      this.sendSuccess(res, null, "Logged out successfully");
+    }, req, res);
   }
 
+  // Static methods for route handlers
+  static loginUser = (req: Request, res: Response) => {
+    new LoginController().loginUser(req, res);
+  };
+
+  static logoutUser = (req: Request, res: Response) => {
+    new LoginController().logoutUser(req, res);
+  };
 }

@@ -1,98 +1,132 @@
+import { BaseService } from "../../shared/base/index.ts";
+import { ValidationError, NotFoundError } from "../../shared/errors.ts";
 import { UserRepository } from "./user.repository.ts";
+import { userSchema, newUserSchema } from "./user.model.ts";
 import type { User } from "./user.model.ts";
 import { comparePasswords } from "../../shared/bcrypt.ts";
 
-export class UserService {
+export class UserService extends BaseService {
   private repo: UserRepository;
 
   constructor() {
+    super();
     this.repo = new UserRepository();
   }
 
-  async getUsers() {
-    return await this.repo.findAll();
+  async getUsers(options?: { skip?: number; take?: number }): Promise<User[]> {
+    return this.repo.findAll(options);
   }
 
-  async getUserById(id: string): Promise<User | null> {
-    
-    if (!id) {
-      throw "User id is empty"
-    }
+  async getUserById(id: string): Promise<User> {
+    const schema = userSchema.pick({ id: true });
+    this.validate(schema, { id });
 
-    return await this.repo.findById(id);
+    const user = await this.repo.findById(id);
+    if (!user) {
+      throw new NotFoundError(`User with id ${id} not found`);
+    }
+    return user;
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
-    return await this.repo.findByEmail(email);
+  async getUserByEmail(email: string): Promise<User> {
+    const schema = userSchema.pick({ email: true });
+    this.validate(schema, { email });
+
+    const user = await this.repo.findByEmail(email);
+    if (!user) {
+      throw new NotFoundError(`User with email ${email} not found`);
+    }
+    return user;
   }
 
-  async getUserByName(name: string): Promise<User | null> {
-    return await this.repo.findByName(name);
-  }
-  
-  async updateUser(id:string , user: User) {
+  async getUserByName(name: string): Promise<User> {
+    const schema = userSchema.pick({ name: true });
+    this.validate(schema, { name });
 
-    if (!id) {
-      throw 'User id is empty'
+    const user = await this.repo.findByName(name);
+    if (!user) {
+      throw new NotFoundError(`User with name ${name} not found`);
     }
-
-    if(!user) {
-      throw "User isn't defined"
-    }
-
-    if(!user.email && !user.name)
-    {
-      throw "User email and name not defined"
-    }
-
-    return await this.repo.update(id, user);
-
+    return user;
   }
 
-  async updatePassword(userId: string, newPassword: string, oldPassword: string) {
-    // hash & vérifier old password
+  async updateUser(id: string, data: { email?: string; name?: string }): Promise<User> {
+    // Validate id exists
+    const schema = userSchema.pick({ id: true });
+    this.validate(schema, { id });
 
-    if (!userId) {
-      throw "UserId is empty"
+    // Validate at least one field is provided
+    if (!data.email && !data.name) {
+      throw new ValidationError("At least one field (email or name) must be provided");
     }
 
-    if (!newPassword) {
-      throw "New password is empty"
+    // Validate provided fields
+    const updateSchema = userSchema.pick({ email: true, name: true }).partial();
+    const validatedData = this.validate<{ email?: string; name?: string }>(updateSchema, data);
+
+    // Check user exists
+    const userExists = await this.repo.exists(id);
+    if (!userExists) {
+      throw new NotFoundError(`User with id ${id} not found`);
     }
+
+    return this.repo.update(id, validatedData);
+  }
+
+  async updatePassword(
+    userId: string,
+    newPassword: string,
+    oldPassword: string
+  ): Promise<void> {
+    // Validate inputs
+    const schema = userSchema.pick({ id: true, password: true });
+    this.validate(schema, { id: userId, password: newPassword });
 
     if (!oldPassword) {
-      throw "Old password is empty"
+      throw new ValidationError("Old password is required");
     }
 
-    const user: User | null = await this.getUserById(userId);
-    if (!user?.id) {
-      throw "User / UserId doesn't exist"
-    }
-  
-    if (!user?.password)
-    {
-      throw "User password doesn't exist"
+    // Get user with password (internal method)
+    const user = await this.repo.findById(userId);
+    if (!user) {
+      throw new NotFoundError(`User with id ${userId} not found`);
     }
 
-    const passwordCompared = await comparePasswords(oldPassword, user?.password)
-    if (!passwordCompared) {
-      throw "Passwords aren't matching"
+    // Get user with password for verification
+    const userWithPassword = await this.repo.findByEmailWithPassword(user.email!);
+    if (!userWithPassword?.password) {
+      throw new ValidationError("User password not found");
     }
 
-    const passwordChanged: User | null = await this.repo.updatePassword(user.id, newPassword)
-    if (!passwordChanged) {
-      throw "User password has not been updated"
+    // Verify old password
+    const passwordMatch = await comparePasswords(oldPassword, userWithPassword.password);
+    if (!passwordMatch) {
+      throw new ValidationError("Old password is incorrect");
     }
+
+    // Update password
+    await this.repo.updatePassword(userId, newPassword);
   }
 
-  async deleteUser(id: string) {
-    if (!id) {
-      throw "User id is empty"
+  async deleteUser(id: string): Promise<void> {
+    const schema = userSchema.pick({ id: true });
+    this.validate(schema, { id });
+
+    const userExists = await this.repo.exists(id);
+    if (!userExists) {
+      throw new NotFoundError(`User with id ${id} not found`);
     }
 
-    const isDeleted: User | null = await this.repo.delete(id);
-    if (!isDeleted) {
-      throw "User has not been found"
-    }
+    await this.repo.delete(id);
+  }
+
+  async createUser(data: {
+    email: string;
+    name: string;
+    password: string;
+    role: string;
+  }): Promise<User> {
+    const validatedData = this.validate<any>(newUserSchema, data);
+    return this.repo.create(validatedData);
   }
 }

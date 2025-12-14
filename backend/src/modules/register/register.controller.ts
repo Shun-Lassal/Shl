@@ -1,23 +1,32 @@
-import type { Request, Response } from "express";
+import { Request, Response } from "express";
+import { BaseController } from "../../shared/base/index.ts";
 import { RegisterService } from "./register.service.ts";
 
-const registerService = new RegisterService();
+export class RegisterController extends BaseController {
+  private registerService: RegisterService;
 
-export class RegisterController {
-  
-  static async registerUser(req: Request, res: Response) {
-    try {
-      const { email, name, password, role } = req.body;
-      const result = await registerService.register({email, name, password, role});
-      
-      if (!result) {
-        throw 'User registration failed'
-      }
-
-      res.status(201).send({ message: 'User registered successfully' });
-    } catch (e) {
-      res.status(400).json({ error: e });
-    }
+  constructor() {
+    super();
+    this.registerService = new RegisterService();
   }
-  
+
+  async registerUser(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
+      const { email, name, password, role } = req.body;
+
+      await this.registerService.register({
+        email,
+        name,
+        password,
+        role,
+      });
+
+      this.sendSuccess(res, null, "User registered successfully", 201);
+    }, req, res);
+  }
+
+  // Static method for route handler
+  static registerUser = (req: Request, res: Response) => {
+    new RegisterController().registerUser(req, res);
+  };
 }

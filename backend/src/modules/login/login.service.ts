@@ -1,42 +1,53 @@
-import type { Login } from './login.model.ts';
-import { UserService } from '../user/user.service.ts';
-import { comparePasswords } from '../../shared/bcrypt.ts';
-import { SessionService } from '../session/session.service.ts';
-import { LoginRepository } from './login.repository.ts';
-import type { User } from '../user/user.model.ts';
+import { BaseService } from "../../shared/base/index.ts";
+import { ValidationError } from "../../shared/errors.ts";
+import { loginSchema } from "./login.model.ts";
+import type { Login } from "./login.model.ts";
+import { comparePasswords } from "../../shared/bcrypt.ts";
+import { UserRepository } from "../user/user.repository.ts";
+import { SessionService } from "../session/session.service.ts";
 
-export class LoginService {
+export class LoginService extends BaseService {
+  private userRepo: UserRepository;
+  private sessionService: SessionService;
 
-  async authenticate(user: Login): Promise<string | false> {
-    const { email, password } = user;
-    if(!email || email.length > 128 || email.length < 10) {
-      throw "Throw: email empty, >128 or <10"
-    }
-
-    // PASSWORD A 4 POUR LE MOMENT MAIS A CHANGER EN PROD
-    if (!password || password.length > 128 || password.length < 4) {
-      throw "Throw: Password empty, >128 or <10"
-    }
-    const userService = new UserService();
-    const sessionService = new SessionService();
-    const loginService = new LoginRepository();
-    const existingUser: User | null = await userService.getUserByEmail(email);
-
-    if (!existingUser?.id || !existingUser.email) {
-      return false;
-    }
-
-    const hashedPassword: string = await loginService.getUserPassword(existingUser.id);
-    if (await comparePasswords(password, hashedPassword)) {
-      const sessionId = await sessionService.createSession(existingUser.id, new Date(Date.now() + 15 * 60 * 1000)); // 15 minutes
-      return sessionId;
-    }
-    return false;
+  constructor() {
+    super();
+    this.userRepo = new UserRepository();
+    this.sessionService = new SessionService();
   }
 
-  async logout(sessionId: string): Promise<boolean> {
-    const sessionService = new SessionService();
-    return sessionService.deleteSessionBySessionId(sessionId);
+  async authenticate(credentials: Login): Promise<string> {
+    // Validate credentials
+    const validatedData = this.validate<Login>(loginSchema, credentials);
+
+    // Get user by email
+    const user = await this.userRepo.findByEmailWithPassword(validatedData.email);
+    if (!user) {
+      throw new ValidationError("Invalid email or password");
+    }
+
+    if (!user.password) {
+      throw new ValidationError("Invalid email or password");
+    }
+
+    // Compare passwords
+    const isPasswordValid = await comparePasswords(validatedData.password, user.password);
+    if (!isPasswordValid) {
+      throw new ValidationError("Invalid email or password");
+    }
+
+    // Create session
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    const sessionId = await this.sessionService.createSession(user.id!, expiresAt);
+
+    return sessionId;
   }
-  
+
+  async logout(sessionId: string): Promise<void> {
+    if (!sessionId) {
+      throw new ValidationError("Session ID is required");
+    }
+
+    await this.sessionService.deleteSessionBySessionId(sessionId);
+  }
 }

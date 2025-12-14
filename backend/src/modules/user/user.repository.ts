@@ -1,46 +1,77 @@
-import { prisma } from "../../shared/prisma.ts";
+import { BaseRepository } from "../../shared/base/index.ts";
+import { selectWithoutPassword } from "../../shared/fieldSelectors.ts";
 import type { NewUser, User } from "./user.model.ts";
 
-export class UserRepository {
-  async findAll(): Promise<User[]> {
-    return prisma.user.findMany({ omit: { password: true } });
+export class UserRepository extends BaseRepository {
+  async findAll(options?: { skip?: number; take?: number }): Promise<User[]> {
+    return this.db.user.findMany({
+      ...options,
+      omit: { password: true },
+    });
   }
 
   async findById(id: string): Promise<User | null> {
-    return prisma.user.findUnique({ where: { id } })
+    return this.db.user.findUnique({
+      where: { id },
+      omit: { password: true },
+    });
   }
 
   async findByName(name: string): Promise<User | null> {
-    return prisma.user.findUnique({ where: { name }, omit: { password: true } });
+    return this.db.user.findUnique({
+      where: { name },
+      omit: { password: true },
+    });
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return prisma.user.findUnique({ where: { email }, omit: { password: true } });
+    return this.db.user.findUnique({
+      where: { email },
+      omit: { password: true },
+    });
   }
 
-  async createUser(data: NewUser): Promise<User | null> {
-    return prisma.user.create({
-      data: {
-        email: data.email,
-        name: data.name,
-        password: data.password,
-        role: data.role
-      }
-    })
+  async findByEmailWithPassword(email: string): Promise<User | null> {
+    return this.db.user.findUnique({
+      where: { email },
+    });
   }
 
-  async update(
-    id: string,
-    data: { email?: string; name?: string; }
-  ) {
-    return prisma.user.update({ where: { id }, data });
+  async create(data: NewUser): Promise<User> {
+    return this.db.user.create({
+      data,
+      omit: { password: true },
+    });
   }
 
-  async updatePassword(id: string, password: string) {
-    return prisma.user.update({ where: { id }, data: { password: password } })
+  async update(id: string, data: { email?: string; name?: string }): Promise<User> {
+    return this.db.user.update({
+      where: { id },
+      data,
+      omit: { password: true },
+    });
   }
 
-  async delete(id: string) {
-    return prisma.user.delete({ where: { id } });
+  async updatePassword(id: string, password: string): Promise<User> {
+    return this.db.user.update({
+      where: { id },
+      data: { password },
+      omit: { password: true },
+    });
+  }
+
+  async delete(id: string): Promise<User> {
+    return this.db.user.delete({
+      where: { id },
+      omit: { password: true },
+    });
+  }
+
+  async exists(id: string): Promise<boolean> {
+    const user = await this.db.user.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    return !!user;
   }
 }

@@ -1,59 +1,87 @@
-import type { Request, Response } from "express";
+import { Request, Response } from "express";
+import { BaseController } from "../../shared/base/index.ts";
 import { GameScoreService } from "./gameScore.service.ts";
 
-const gScoreService = new GameScoreService();
+export class GameScoreController extends BaseController {
+  private gameScoreService: GameScoreService;
 
-export class GameScoreController {
-  static async listGameScores(req: Request, res: Response) {
-    try {
+  constructor() {
+    super();
+    this.gameScoreService = new GameScoreService();
+  }
+
+  async listGameScores(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
       const lobbyId = typeof req.query.lobbyId === "string" ? req.query.lobbyId : undefined;
-      const scores = await gScoreService.listGameScores(lobbyId);
-      res.status(200).json(scores);
-    } catch (e) {
-      res.status(400).json({ error: e });
-    }
+      const skip = req.query.skip ? parseInt(req.query.skip as string) : 0;
+      const take = req.query.take ? parseInt(req.query.take as string) : 10;
+
+      const scores = await this.gameScoreService.listGameScores({
+        lobbyId,
+        skip,
+        take,
+      });
+
+      this.sendSuccess(res, scores, "GameScores retrieved successfully");
+    }, req, res);
   }
 
-  static async getGameScore(req: Request, res: Response) {
-    try {
+  async getGameScore(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
       const { id } = req.params;
-      const score = await gScoreService.getGameScore(id);
-      res.status(200).json(score);
-    } catch (e) {
-      res.status(404).json({ error: e });
-    }
+      const score = await this.gameScoreService.getGameScore(id);
+      this.sendSuccess(res, score);
+    }, req, res);
   }
 
-  static async createGameScore(req: Request, res: Response) {
-    try {
+  async createGameScore(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
       const { userId, lobbyId, position } = req.body;
-      const parsedPosition = Number(position);
-      const score = await gScoreService.createGameScore({ userId, lobbyId, position: parsedPosition });
-      res.status(201).json(score);
-    } catch (e) {
-      res.status(400).json({ error: e });
-    }
+      const score = await this.gameScoreService.createGameScore({
+        userId,
+        lobbyId,
+        position: parseInt(position),
+      });
+
+      this.sendSuccess(res, score, "GameScore created successfully", 201);
+    }, req, res);
   }
 
-  static async updateGameScorePosition(req: Request, res: Response) {
-    try {
+  async updateGameScorePosition(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
       const { id } = req.params;
       const { position } = req.body;
-      const parsedPosition = Number(position);
-      const score = await gScoreService.updateGameScorePosition(id, parsedPosition);
-      res.status(200).json(score);
-    } catch (e) {
-      res.status(400).json({ error: e });
-    }
+      const score = await this.gameScoreService.updateGameScorePosition(id, parseInt(position));
+      this.sendSuccess(res, score, "GameScore updated successfully");
+    }, req, res);
   }
 
-  static async deleteGameScore(req: Request, res: Response) {
-    try {
+  async deleteGameScore(req: Request, res: Response): Promise<void> {
+    await this.executeAsync(async () => {
       const { id } = req.params;
-      await gScoreService.deleteGameScore(id);
-      res.status(200).json({ message: "GameScore deleted successfully" });
-    } catch (e) {
-      res.status(400).json({ error: e });
-    }
+      await this.gameScoreService.deleteGameScore(id);
+      this.sendSuccess(res, null, "GameScore deleted successfully");
+    }, req, res);
   }
+
+  // Static methods for route handlers
+  static listGameScores = (req: Request, res: Response) => {
+    new GameScoreController().listGameScores(req, res);
+  };
+
+  static getGameScore = (req: Request, res: Response) => {
+    new GameScoreController().getGameScore(req, res);
+  };
+
+  static createGameScore = (req: Request, res: Response) => {
+    new GameScoreController().createGameScore(req, res);
+  };
+
+  static updateGameScorePosition = (req: Request, res: Response) => {
+    new GameScoreController().updateGameScorePosition(req, res);
+  };
+
+  static deleteGameScore = (req: Request, res: Response) => {
+    new GameScoreController().deleteGameScore(req, res);
+  };
 }

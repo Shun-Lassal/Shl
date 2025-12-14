@@ -1,4 +1,5 @@
-import { prisma } from "../../shared/prisma.ts";
+import { BaseRepository } from "../../shared/base/index.ts";
+import { NotFoundError } from "../../shared/errors.ts";
 import type { GameScore, GameScoreWithRelations, NewGameScore } from "./gameScore.model.ts";
 
 const defaultInclude = {
@@ -18,20 +19,30 @@ const defaultInclude = {
   },
 };
 
-export class GameScoreRepository {
-  async findAll(): Promise<GameScoreWithRelations[]> {
-    return prisma.gamescore.findMany({
+export class GameScoreRepository extends BaseRepository {
+  async findAll(options?: { skip?: number; take?: number }): Promise<GameScoreWithRelations[]> {
+    return this.db.gamescore.findMany({
+      ...options,
       include: defaultInclude,
       orderBy: [{ lobbyId: "asc" }, { position: "asc" }],
     });
   }
 
-  async findById(id: string): Promise<GameScoreWithRelations | null> {
-    return prisma.gamescore.findUnique({ where: { id }, include: defaultInclude });
+  async findById(id: string): Promise<GameScoreWithRelations> {
+    const score = await this.db.gamescore.findUnique({
+      where: { id },
+      include: defaultInclude,
+    });
+
+    if (!score) {
+      throw new NotFoundError(`GameScore ${id} not found`);
+    }
+
+    return score;
   }
 
   async findByLobby(lobbyId: string): Promise<GameScoreWithRelations[]> {
-    return prisma.gamescore.findMany({
+    return this.db.gamescore.findMany({
       where: { lobbyId },
       include: defaultInclude,
       orderBy: { position: "asc" },
@@ -39,28 +50,36 @@ export class GameScoreRepository {
   }
 
   async findByUserAndLobby(userId: string, lobbyId: string): Promise<GameScoreWithRelations | null> {
-    return prisma.gamescore.findFirst({
+    return this.db.gamescore.findFirst({
       where: { userId, lobbyId },
       include: defaultInclude,
     });
   }
 
   async create(data: NewGameScore): Promise<GameScoreWithRelations> {
-    return prisma.gamescore.create({
+    return this.db.gamescore.create({
       data,
       include: defaultInclude,
     });
   }
 
-  async updatePosition(id: string, position: number): Promise<GameScoreWithRelations> {
-    return prisma.gamescore.update({
+  async update(id: string, data: { position: number }): Promise<GameScoreWithRelations> {
+    return this.db.gamescore.update({
       where: { id },
-      data: { position },
+      data,
       include: defaultInclude,
     });
   }
 
-  async deleteById(id: string): Promise<GameScore> {
-    return prisma.gamescore.delete({ where: { id } });
+  async delete(id: string): Promise<GameScore> {
+    return this.db.gamescore.delete({ where: { id } });
+  }
+
+  async exists(id: string): Promise<boolean> {
+    const score = await this.db.gamescore.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    return !!score;
   }
 }
