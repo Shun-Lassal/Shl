@@ -1,11 +1,13 @@
-import type { User } from "../user/user.model.ts";
+import { z } from "zod";
 
-export interface Session {
-    id: string;
-    userId: string;
-    ipAddress?: string | null;
-    userAgent?: string | null;
-    expiresAt: Date;
-    createdAt: Date;
-    updatedAt: Date;
-}
+export const sessionSchema = z.object({
+  id: z.uuid(),
+  userId: z.uuid(),
+  ipAddress: z.string().nullable().optional(),
+  userAgent: z.string().nullable().optional(),
+  expiresAt: z.date(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type Session = z.infer<typeof sessionSchema>;
