@@ -17,6 +17,14 @@ enum LobbyStatus {
   ENDED
 }
 
+enum GamePhase {
+  LOBBY_WAIT
+  BATTLE
+  REWARD
+  SHOP
+  GAME_OVER
+}
+
 model Session {
   id        String   @id @default(uuid())
   userId    String   @unique
@@ -29,17 +37,18 @@ model Session {
 }
 
 model User {
-  id        String      @id @default(uuid())
-  name      String      @unique
-  email     String      @unique
-  password  String
-  role      Role
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  session   Session?
-  lobby     Lobby?      @relation(fields: [lobbyId], references: [id])
-  gamescore Gamescore[]
-  lobbyId   String?
+  id           String        @id @default(uuid())
+  name         String        @unique
+  email        String        @unique
+  password     String
+  role         Role
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  session      Session?
+  lobby        Lobby?        @relation(fields: [lobbyId], references: [id])
+  gamescore    Gamescore[]
+  lobbyId      String?
+  playerStates PlayerState[]
 }
 
 model Lobby {
@@ -51,6 +60,7 @@ model Lobby {
   players    User[]
   password   String?
   gamescores Gamescore[]
+  game       Game?
 }
 
 model Gamescore {
@@ -60,4 +70,46 @@ model Gamescore {
   position Int
   lobbyId  String
   lobby    Lobby  @relation(fields: [lobbyId], references: [id])
+}
+
+model Game {
+  id           String        @id @default(uuid())
+  lobbyId      String        @unique
+  lobby        Lobby         @relation(fields: [lobbyId], references: [id], onDelete: Cascade)
+  phase        GamePhase
+  currentFloor Int           @default(1)
+  seed         String
+  turnOrder    Json          // Array of player/enemy IDs
+  currentTurn  Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  players      PlayerState[]
+  enemies      EnemyState[]
+}
+
+model PlayerState {
+  id        String   @id @default(uuid())
+  gameId    String
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hp        Int
+  maxHp     Int
+  deck      Json     // Array of card objects
+  hand      Json     // Array of card objects
+  discard   Json     // Array of card objects
+  bonuses   Json     @default("[]") // Array of bonus effects
+  isAlive   Boolean  @default(true)
+  order     Int      // Turn order priority
+}
+
+model EnemyState {
+  id     String @id @default(uuid())
+  gameId String
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  type   String // "GOBLIN", "ORC", etc.
+  hp     Int
+  maxHp  Int
+  intent Json   // Next planned action
+  order  Int    // Turn order priority
 }

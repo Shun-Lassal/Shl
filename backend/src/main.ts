@@ -7,6 +7,8 @@ import { registerLobbySocketHandlers } from "./modules/lobby/lobby.socket.ts";
 import { seedDefaultUser } from "./shared/seedDefaultUser.ts";
 import sharedRoutes from "./shared/routes.ts";
 import { initLobbyRealtime } from "./modules/lobby/lobby.realtime.ts";
+import { initGameRealtime } from "./modules/game/game.realtime.ts";
+import { registerGameSocketHandlers } from "./modules/game/game.socket.ts";
 
 seedDefaultUser();
 const app = express();
@@ -39,6 +41,10 @@ const io = new SocketIOServer(httpServer, {
 // Initialise lobby real-time features
 initLobbyRealtime(io);
 registerLobbySocketHandlers(io, { cookieSecret });
+
+// Initialise game real-time features
+initGameRealtime(io);
+registerGameSocketHandlers(io);
 
 httpServer.listen(3000, () => {
   console.log("✅ Backend running on http://localhost:3000");
