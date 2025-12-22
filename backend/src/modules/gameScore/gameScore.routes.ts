@@ -5,6 +5,7 @@ import { isAdminMiddleware, isLoggedInMiddleware } from "../../middlewares/auth.
 const router = express.Router();
 
 router.get("/", isLoggedInMiddleware, GameScoreController.listGameScores);
+router.get("/scoreboard", isLoggedInMiddleware, GameScoreController.getScoreboard);
 router.get("/:id", isLoggedInMiddleware, GameScoreController.getGameScore);
 router.post("/", isLoggedInMiddleware, isAdminMiddleware, GameScoreController.createGameScore);
 router.patch("/:id", isLoggedInMiddleware, isAdminMiddleware, GameScoreController.updateGameScorePosition);

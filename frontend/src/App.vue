@@ -15,6 +15,7 @@
         <nav class="flex items-center gap-2">
           <UiButton v-if="authStore.isAuthenticated" to="/home" variant="ghost" size="sm">Accueil</UiButton>
           <UiButton v-if="authStore.isAuthenticated" to="/lobbies" variant="ghost" size="sm">Lobbies</UiButton>
+          <UiButton v-if="authStore.isAuthenticated" to="/scores" variant="ghost" size="sm">Scores</UiButton>
 
           <div v-if="!authStore.isAuthenticated" class="flex items-center gap-2">
             <UiButton to="/login" variant="secondary" size="sm">Connexion</UiButton>

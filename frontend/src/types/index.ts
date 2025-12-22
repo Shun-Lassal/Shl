@@ -104,9 +104,17 @@ export interface GameScore {
   id: string;
   userId: string;
   user: User;
-  position: number;
+  position: number; // floor reached; -1 means finished game
   lobbyId: string;
   lobby: Lobby;
+}
+
+export interface ScoreboardRun {
+  lobbyId: string;
+  lobbyName: string;
+  endedAt: string | null;
+  position: number; // floor reached; -1 means finished game
+  players: { userId: string; name: string; position: number }[];
 }
 
 // Auth types

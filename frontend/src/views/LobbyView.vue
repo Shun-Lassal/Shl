@@ -68,7 +68,7 @@
     </div>
 
     <!-- Lobby List -->
-    <div v-else>
+    <div class="flex flex-col gap-6" v-else>
       <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 class="text-3xl font-black tracking-tight text-white">Lobbies</h1>

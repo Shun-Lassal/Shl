@@ -15,6 +15,14 @@ const defaultInclude = {
       id: true,
       name: true,
       status: true,
+      game: {
+        select: {
+          id: true,
+          updatedAt: true,
+          currentFloor: true,
+          phase: true,
+        },
+      },
     },
   },
 };

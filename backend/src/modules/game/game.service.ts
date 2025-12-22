@@ -9,6 +9,7 @@ import { generateEnemy, executeEnemyTurn, type EnemyType } from "./aiEngine.serv
 import { emitGameUpdate, emitGamePhaseChange, emitGameOver, emitGamePlanning, emitGameReward } from "./game.realtime.ts";
 import { emitLobbyUpdate } from "../lobby/lobby.realtime.ts";
 import { randomUUID } from "node:crypto";
+import { GameScoreService } from "../gameScore/gameScore.service.ts";
 
 type PlannedAction = GameAction["action"];
 type PlanningState = {
@@ -31,6 +32,7 @@ type RewardState = {
 export class GameService extends BaseService {
   private repo: GameRepository;
   private lobbyRepo: LobbyRepository;
+  private gameScoreService: GameScoreService;
   private static planningByGameId = new Map<string, PlanningState>();
   private static rewardByGameId = new Map<string, RewardState>();
 
@@ -38,6 +40,7 @@ export class GameService extends BaseService {
     super();
     this.repo = new GameRepository();
     this.lobbyRepo = new LobbyRepository();
+    this.gameScoreService = new GameScoreService();
   }
 
   private computeEnemyCount(floor: number, alivePlayerCount: number): number {
@@ -200,7 +203,12 @@ export class GameService extends BaseService {
       const allEnemiesDead = updated.enemies.every((e) => e.hp <= 0);
       const allPlayersDead = updated.players.every((p) => !p.isAlive);
       if (allEnemiesDead) {
-        await this.transitionToReward(updated);
+        const MAX_FLOOR = 10;
+        if (updated.currentFloor >= MAX_FLOOR) {
+          await this.transitionToGameOver(updated, true);
+        } else {
+          await this.transitionToReward(updated);
+        }
         GameService.planningByGameId.delete(gameId);
         return;
       }
@@ -729,6 +737,15 @@ export class GameService extends BaseService {
 
     // Update lobby status
     await this.lobbyRepo.update(game.lobbyId, { status: "ENDED" });
+
+    const position = victory ? -1 : game.currentFloor;
+    for (const p of game.players) {
+      await this.gameScoreService.upsertGameScore({
+        userId: p.userId,
+        lobbyId: game.lobbyId,
+        position,
+      });
+    }
 
     emitGameOver(game.id, winners, game.currentFloor);
   }

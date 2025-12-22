@@ -48,6 +48,16 @@ export class GameScoreService extends BaseService {
     return this.repo.create(validatedData);
   }
 
+  async upsertGameScore(data: NewGameScore): Promise<GameScoreWithRelations> {
+    const validatedData = this.validate<NewGameScore>(newGameScoreSchema, data);
+
+    const existing = await this.repo.findByUserAndLobby(validatedData.userId, validatedData.lobbyId);
+    if (existing) {
+      return this.repo.update(existing.id, { position: validatedData.position });
+    }
+    return this.repo.create(validatedData);
+  }
+
   async updateGameScorePosition(id: string, position: number): Promise<GameScoreWithRelations> {
     const schema = gameScoreSchema.pick({ id: true, position: true });
     this.validate(schema, { id, position });
