@@ -16,7 +16,7 @@ export class LoginService extends BaseService {
     this.sessionService = new SessionService();
   }
 
-  async authenticate(credentials: Login): Promise<string> {
+  async authenticate(credentials: Login): Promise<{ sessionId: string; user: any }> {
     // Validate credentials
     const validatedData = this.validate<Login>(loginSchema, credentials);
 
@@ -40,7 +40,14 @@ export class LoginService extends BaseService {
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
     const sessionId = await this.sessionService.createSession(user.id!, expiresAt);
 
-    return sessionId;
+    // Return user without password
+    const userWithoutPassword = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    };
+
+    return { sessionId, user: userWithoutPassword };
   }
 
   async logout(sessionId: string): Promise<void> {

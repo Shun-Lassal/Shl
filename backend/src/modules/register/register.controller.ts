@@ -14,14 +14,24 @@ export class RegisterController extends BaseController {
     await this.executeAsync(async () => {
       const { email, name, password, role } = req.body;
 
-      await this.registerService.register({
+      const result = await this.registerService.register({
         email,
         name,
         password,
         role,
       });
 
-      this.sendSuccess(res, null, "User registered successfully", 201);
+      res
+        .status(201)
+        .cookie("sid", result.sessionId, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+          maxAge: 1000 * 60 * 60 * 24,
+          signed: true,
+        });
+
+      this.sendSuccess(res, { user: result.user }, "User registered successfully", 201);
     }, req, res);
   }
 

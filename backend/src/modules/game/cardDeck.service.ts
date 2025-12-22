@@ -5,7 +5,7 @@ const SUITS: CardSuit[] = ["HEARTS", "DIAMONDS", "CLUBS", "SPADES"];
 const RANKS: CardRank[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
 
 function getCardValue(rank: CardRank): number {
-  if (rank === "A") return 11;
+  if (rank === "A") return 1;
   if (rank === "J" || rank === "Q" || rank === "K") return 10;
   if (rank === "JOKER") return 0;
   return parseInt(rank);
@@ -39,6 +39,24 @@ export function createStandardDeck(): Card[] {
     rank: "JOKER",
     value: 0,
   });
+
+  return deck;
+}
+
+export function createStarterDeck(): Card[] {
+  const deck: Card[] = [];
+  const starterRanks: CardRank[] = ["A", "2", "3", "4", "5"];
+
+  for (const suit of SUITS) {
+    for (const rank of starterRanks) {
+      deck.push({
+        id: randomUUID(),
+        suit,
+        rank,
+        value: getCardValue(rank),
+      });
+    }
+  }
 
   return deck;
 }

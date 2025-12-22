@@ -19,13 +19,21 @@ export class LobbyRepository extends BaseRepository {
         slots: data.slots,
         ownerId: data.ownerId,
         password: data.password ?? null,
+        players: {
+          connect: { id: data.ownerId },
+        },
       },
+      include: { players: true },
     });
   }
 
   async findAll(options?: { skip?: number; take?: number }): Promise<Lobby[]> {
     return this.db.lobby.findMany({
       ...options,
+      where: {
+        status: { not: "ENDED" },
+      },
+      include: { players: true },
     });
   }
 
@@ -140,6 +148,16 @@ export class LobbyRepository extends BaseRepository {
       where: { id },
       include: { players: true },
     }) as Promise<Lobby>;
+  }
+
+  async deleteEnded(): Promise<number> {
+    const ended = await this.db.lobby.findMany({ where: { status: "ENDED" }, select: { id: true } });
+    const ids = ended.map((l) => l.id);
+    if (ids.length === 0) return 0;
+
+    await this.db.gamescore.deleteMany({ where: { lobbyId: { in: ids } } });
+    const result = await this.db.lobby.deleteMany({ where: { id: { in: ids } } });
+    return result.count;
   }
 
   async exists(id: string): Promise<boolean> {

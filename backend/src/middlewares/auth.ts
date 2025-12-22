@@ -24,6 +24,13 @@ export async function isLoggedInMiddleware(req: Request, res: Response, next: Ne
             throw 'Session too old'
         }
 
+        if (!session.userId) {
+            throw "Session userId not defined"
+        }
+
+        res.locals.userId = session.userId;
+        res.locals.sessionId = session.id;
+
         next();
     } catch (e) {
         return res.status(401).json({error: e})

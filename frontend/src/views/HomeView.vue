@@ -1,85 +1,92 @@
 <template>
-  <main class="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-6 py-16">
-    <section class="flex flex-col gap-2 text-center">
-      <p class="text-sm font-medium uppercase tracking-wide text-sky-600">
-        Stack ready
-      </p>
-      <h1 class="text-4xl font-bold text-slate-900 dark:text-slate-100">
-        Vite + Vue 3 + Pinia + TailwindCSS
-      </h1>
-      <p class="text-base text-slate-600 dark:text-slate-300">
-        Cette base de projet est prête pour bâtir votre interface. Modifiez
-        <code class="rounded bg-slate-800 px-1 py-0.5 text-xs text-slate-100">src/views/HomeView.vue</code>
-        et commencez à construire&nbsp;!
-      </p>
-    </section>
+  <div class="space-y-8">
+    <!-- Welcome Section -->
+    <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg shadow-lg p-8 text-white">
+      <h1 class="text-4xl font-bold mb-2">Bienvenue dans Slay The Horde!</h1>
+      <p class="text-lg opacity-90">Préparez-vous pour une aventure roguelike épique</p>
+    </div>
 
-    <section class="grid gap-6 md:grid-cols-2">
-      <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <h2 class="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-100">
-          Vue Router
-        </h2>
-        <p class="text-sm text-slate-600 dark:text-slate-300">
-          Les routes sont déclarées via <code class="rounded bg-slate-800 px-1 py-0.5 text-xs text-slate-100">src/router/index.ts</code>.
-          Ajoutez vos vues et composants, le hot-reload est activé.
-        </p>
-      </article>
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-slate-800 rounded-lg border border-purple-500 p-6">
+        <div class="text-4xl font-bold text-purple-400 mb-2">{{ stats.lobbyCount }}</div>
+        <div class="text-gray-400">Lobbies actifs</div>
+      </div>
+      <div class="bg-slate-800 rounded-lg border border-purple-500 p-6">
+        <div class="text-4xl font-bold text-purple-400 mb-2">{{ stats.playerCount }}</div>
+        <div class="text-gray-400">Joueurs en ligne</div>
+      </div>
+      <div class="bg-slate-800 rounded-lg border border-purple-500 p-6">
+        <div class="text-4xl font-bold text-purple-400 mb-2">Étage Max</div>
+        <div class="text-gray-400">{{ stats.maxFloor }}</div>
+      </div>
+    </div>
 
-      <CounterCard />
+    <!-- CTA Buttons -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <router-link
+        to="/lobbies"
+        class="bg-gradient-to-br from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white rounded-lg p-8 text-center transition transform hover:scale-105"
+      >
+        <div class="text-3xl mb-2">🎪</div>
+        <div class="text-xl font-bold">Rejoindre un Lobby</div>
+        <div class="text-sm opacity-75 mt-2">Chercher et rejoindre un lobby existant</div>
+      </router-link>
+      <router-link
+        to="/lobbies?create=true"
+        class="bg-gradient-to-br from-pink-600 to-pink-800 hover:from-pink-700 hover:to-pink-900 text-white rounded-lg p-8 text-center transition transform hover:scale-105"
+      >
+        <div class="text-3xl mb-2">✨</div>
+        <div class="text-xl font-bold">Créer un Lobby</div>
+        <div class="text-sm opacity-75 mt-2">Créer votre propre partie et attendre des joueurs</div>
+      </router-link>
+    </div>
 
-      <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <h2 class="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-100">
-          Backend Express
-        </h2>
-        <p class="text-sm text-slate-600 dark:text-slate-300">
-          Vérification rapide de l&apos;API&nbsp;:&nbsp;
-          <span
-            :class="[
-              'font-semibold',
-              apiStatus === 'ok' ? 'text-emerald-600' : apiStatus === 'error' ? 'text-rose-600' : 'text-slate-500',
-            ]"
-          >
-            {{ apiStatusLabel }}
-          </span>
+    <!-- Info Section -->
+    <div class="bg-slate-800 rounded-lg border border-purple-500 p-8">
+      <h2 class="text-2xl font-bold text-white mb-4">Comment jouer</h2>
+      <div class="space-y-4 text-gray-300">
+        <p>
+          <span class="text-purple-400 font-semibold">1. Créez ou rejoignez un Lobby</span>
+          - Attendez que les joueurs se rejoignent (max 4 joueurs)
         </p>
-        <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
-          {{ apiMessage }}
+        <p>
+          <span class="text-purple-400 font-semibold">2. Démarrez la partie</span>
+          - Commencez votre aventure roguelike
         </p>
-      </article>
-    </section>
-  </main>
+        <p>
+          <span class="text-purple-400 font-semibold">3. Explorez et combattez</span>
+          - Parcourez les étages, collectez des cartes, et éliminez vos ennemis
+        </p>
+        <p>
+          <span class="text-purple-400 font-semibold">4. Survivez et triomphez</span>
+          - Gagnez des points en fonction de votre position finale
+        </p>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { ref, onMounted } from 'vue';
+import { useLobbyStore } from '../stores/lobby';
 
-import CounterCard from '@/components/CounterCard.vue'
+const lobbyStore = useLobbyStore();
 
-const apiStatus = ref<'idle' | 'ok' | 'error'>('idle')
-const apiMessage = ref('Ping en cours...')
-
-const apiStatusLabel = computed(() => {
-  if (apiStatus.value === 'ok') return 'Backend joignable'
-  if (apiStatus.value === 'error') return 'Erreur de connexion'
-  return 'Chargement'
-})
+const stats = ref({
+  lobbyCount: 0,
+  playerCount: 0,
+  maxFloor: 0,
+});
 
 onMounted(async () => {
-  const backendUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/merde'
-
-  try {
-    const response = await fetch(`${backendUrl}/`)
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`)
-    }
-
-    const body = (await response.json()) as { message?: string }
-    apiStatus.value = 'ok'
-    apiMessage.value = body.message ?? 'Réponse reçue.'
-  } catch (error) {
-    console.error('Backend check failed', error)
-    apiStatus.value = 'error'
-    apiMessage.value = 'Impossible de joindre le backend. Vérifiez docker compose.'
+  // Fetch lobbies and calculate stats
+  if (!lobbyStore.hasLoadedLobbies) {
+    await lobbyStore.fetchLobbies();
   }
-})
+  
+  stats.value.lobbyCount = lobbyStore.lobbies.length;
+  stats.value.playerCount = lobbyStore.lobbies.reduce((sum, l) => sum + (l.players?.length || 0), 0);
+  stats.value.maxFloor = 10;
+});
 </script>

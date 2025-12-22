@@ -38,6 +38,7 @@ export interface EnemyState {
 export interface EnemyIntent {
   type: "ATTACK" | "DEFEND" | "SPECIAL";
   value: number;
+  targets?: string[];
 }
 
 export interface Game {
@@ -61,7 +62,7 @@ export const gameActionSchema = z.object({
     z.object({
       type: z.literal("PLAY_CARD"),
       cardId: z.string().uuid(),
-      targetId: z.string().uuid().optional(),
+      targetIds: z.array(z.string().uuid()).optional(),
     }),
     z.object({
       type: z.literal("END_TURN"),

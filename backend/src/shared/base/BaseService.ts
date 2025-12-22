@@ -9,12 +9,17 @@ export abstract class BaseService {
    * Validate using Zod schema
    */
   protected validate<T>(schema: any, data: unknown): T {
+    if (!schema || typeof schema.safeParse !== 'function') {
+      throw new AppError('Invalid schema provided', 500);
+    }
     const result = schema.safeParse(data);
     if (!result.success) {
-      const errors = result.error.errors.map((err: any) => ({
-        field: err.path.join('.'),
+      const issues = result.error?.issues ?? result.error?.errors ?? [];
+      const errors = issues?.map((err: any) => ({
+        field: err.path?.join('.') || 'unknown',
         message: err.message,
-      }));
+      })) || [{ field: 'unknown', message: result.error?.message || 'Validation failed' }];
+      console.log(errors);
       throw new ValidationError('Validation failed', errors);
     }
     return result.data as T;

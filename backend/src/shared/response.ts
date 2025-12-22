@@ -8,6 +8,9 @@ export interface ApiResponse<T = any> {
   data?: T;
   message?: string;
   timestamp?: string;
+  errorId?: string;
+  path?: string;
+  method?: string;
 }
 
 export class ResponseFormatter {
@@ -27,13 +30,19 @@ export class ResponseFormatter {
   /**
    * Format error response
    */
-  static error(message: string, status: number = 500, data?: any): ApiResponse {
+  static error(
+    message: string,
+    status: number = 500,
+    data?: any,
+    meta?: { errorId?: string; path?: string; method?: string }
+  ): ApiResponse {
     return {
       success: false,
       status,
       message,
       data,
       timestamp: new Date().toISOString(),
+      ...(meta ?? {}),
     };
   }
 

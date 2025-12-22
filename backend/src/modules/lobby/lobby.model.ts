@@ -22,7 +22,7 @@ export const lobbySchema = z.object({
   id: z.uuid(),
   status: z.enum(LobbyStatus),
   name: z.string().trim().min(3).max(64),
-  slots: z.number().int().min(2),
+  slots: z.number().int().min(1),
   ownerId: z.uuid(),
   password: z.string().min(1).max(128).nullable().optional(),
 });
@@ -36,7 +36,7 @@ export const lobbySummarySchema = lobbySchema.pick({
 export const newLobbySchema = z.object({
   status: z.enum(LobbyStatus).default(LobbyStatus.WAITING),
   name: z.string().trim().min(3).max(64),
-  slots: z.number().int().min(2),
+  slots: z.number().int().min(1),
   ownerId: z.uuid(),
   password: z.string().min(1).max(128).nullable().optional(),
 });

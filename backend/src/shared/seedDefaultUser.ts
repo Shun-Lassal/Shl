@@ -8,7 +8,7 @@ export async function seedDefaultUser() {
     try {
         const email = process.env.DEFAULT_USER_EMAIL ?? "admin@admin.com";
         const name = process.env.DEFAULT_USER_NAME ?? "admin";
-        const password = process.env.DEFAULT_USER_PASSWORD ?? "admin";
+        const password = process.env.DEFAULT_USER_PASSWORD ?? "admin123456";
         
         const existing = await userRepository.findByEmail(email);
         if (!existing) {
@@ -16,7 +16,7 @@ export async function seedDefaultUser() {
             await registerService.register({
                 email, 
                 name, 
-                password, 
+                password,
                 role: Role.ADMIN
             });
             console.log(`[seed] Utilisateur par défaut créé: ${email}`);

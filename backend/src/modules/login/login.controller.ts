@@ -13,11 +13,11 @@ export class LoginController extends BaseController {
   async loginUser(req: Request, res: Response): Promise<void> {
     await this.executeAsync(async () => {
       const { email, password } = req.body;
-      const sessionId = await this.loginService.authenticate({ email, password });
+      const result = await this.loginService.authenticate({ email, password });
 
       res
         .status(200)
-        .cookie("sid", sessionId, {
+        .cookie("sid", result.sessionId, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "strict",
@@ -25,7 +25,7 @@ export class LoginController extends BaseController {
           signed: true,
         });
 
-      this.sendSuccess(res, null, "Login successful", 200);
+      this.sendSuccess(res, { user: result.user }, "Login successful", 200);
     }, req, res);
   }
 

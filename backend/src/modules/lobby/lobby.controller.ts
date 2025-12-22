@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { BaseController } from "../../shared/base/index.ts";
+import { UnauthorizedError } from "../../shared/errors.ts";
 import { LobbyService } from "./lobby.service.ts";
 import type { Lobby } from "./lobby.model.ts";
 import type { LobbyUpdateData } from "./lobby.repository.ts";
@@ -14,14 +15,18 @@ export class LobbyController extends BaseController {
 
   async createLobby(req: Request, res: Response): Promise<void> {
     await this.executeAsync(async () => {
-      const { name, slots, ownerId, password, status } = req.body;
+      const { name, slots, password } = req.body;
+      const ownerId = res.locals.userId;
+      if (!ownerId) {
+        throw new UnauthorizedError("Session userId not defined");
+      }
 
       const lobby = await this.lobbyService.createLobby({
         name,
         slots: Number(slots),
         ownerId,
         password: password ?? null,
-        status: status ?? "WAITING",
+        status: "WAITING",
       });
 
       this.sendSuccess(res, lobby, "Lobby created successfully", 201);
@@ -90,19 +95,34 @@ export class LobbyController extends BaseController {
   async addPlayerToLobby(req: Request, res: Response): Promise<void> {
     await this.executeAsync(async () => {
       const { id } = req.params;
-      const { playerId } = req.body;
+      const { password } = req.body;
+      const playerId = res.locals.userId;
+      if (!playerId) {
+        throw new UnauthorizedError("Session userId not defined");
+      }
 
-      const lobby = await this.lobbyService.addPlayerToLobby(id, playerId);
+      const lobby = await this.lobbyService.addPlayerToLobby(id, playerId, password);
       this.sendSuccess(res, lobby, "Player added to lobby");
     }, req, res);
   }
 
   async removePlayerFromLobby(req: Request, res: Response): Promise<void> {
     await this.executeAsync(async () => {
-      const { id, playerId } = req.params;
+      const { id, playerId: playerIdParam } = req.params;
+      const playerId = res.locals.userId;
+      if (!playerId) {
+        throw new UnauthorizedError("Session userId not defined");
+      }
+      if (playerIdParam && playerIdParam !== playerId) {
+        throw new UnauthorizedError("Cannot remove another player");
+      }
 
       const lobby = await this.lobbyService.removePlayerFromLobby(id, playerId);
-      this.sendSuccess(res, lobby, "Player removed from lobby");
+      if (lobby) {
+        this.sendSuccess(res, lobby, "Player removed from lobby");
+      } else {
+        this.sendSuccess(res, null, "Lobby deleted (last player left)");
+      }
     }, req, res);
   }
 

@@ -1,16 +1,23 @@
 import { BaseService } from "../../shared/base/index.ts";
-import { ValidationError, NotFoundError } from "../../shared/errors.ts";
+import { ValidationError, NotFoundError, ForbiddenError } from "../../shared/errors.ts";
 import { newLobbySchema, lobbySchema } from "./lobby.model.ts";
 import type { Lobby, NewLobby } from "./lobby.model.ts";
 import { LobbyRepository, type LobbyUpdateData } from "./lobby.repository.ts";
 import { emitLobbyClosed, emitLobbyUpdate } from "./lobby.realtime.ts";
+import { GameRepository } from "../game/game.repository.ts";
 
 export class LobbyService extends BaseService {
   private repo: LobbyRepository;
+  private gameRepo: GameRepository;
 
   constructor() {
     super();
     this.repo = new LobbyRepository();
+    this.gameRepo = new GameRepository();
+  }
+
+  private async sweepEndedLobbies(): Promise<void> {
+    await this.repo.deleteEnded();
   }
 
   async createLobby(data: NewLobby): Promise<Lobby> {
@@ -111,20 +118,69 @@ export class LobbyService extends BaseService {
     return updatedLobby;
   }
 
-  async addPlayerToLobby(id: string, playerId: string): Promise<Lobby> {
+  async addPlayerToLobby(id: string, playerId: string, password?: string): Promise<Lobby> {
     const schema = lobbySchema.pick({ id: true, ownerId: true });
     this.validate(schema, { id, ownerId: playerId });
-    const lobby = await this.repo.addPlayer(id, playerId);
-    emitLobbyUpdate(lobby, { systemMessage: `Player ${playerId} joined the lobby` });
-    return lobby;
+
+    const lobby = await this.repo.findById(id);
+    const players = ((lobby as any).players ?? []) as any[];
+    const alreadyInLobby = players.some((p) => p?.id === playerId);
+
+    // Re-joining an existing lobby membership should be idempotent (e.g. refresh/reconnect)
+    if (alreadyInLobby) {
+      return lobby;
+    }
+
+    // Reconnect flow: if the lobby is already PLAYING, only allow re-joining if the user
+    // is an actual participant in the running game.
+    if (lobby.status !== "WAITING") {
+      if (lobby.status === "PLAYING") {
+        const game = await this.gameRepo.findByLobbyId(id);
+        const isParticipant = game?.players?.some((p) => p.userId === playerId);
+        if (isParticipant) {
+          const updatedLobby = await this.repo.addPlayer(id, playerId);
+          emitLobbyUpdate(updatedLobby, { systemMessage: `Player ${playerId} re-joined the lobby` });
+          return updatedLobby;
+        }
+      }
+      throw new ValidationError("Cannot join a lobby that is not waiting");
+    }
+
+    if (players.length >= lobby.slots) {
+      throw new ValidationError("Lobby is full");
+    }
+
+    if (lobby.password) {
+      if (!password) {
+        throw new ForbiddenError("Lobby password required");
+      }
+      if (password !== lobby.password) {
+        throw new ForbiddenError("Invalid lobby password");
+      }
+    }
+
+    const updatedLobby = await this.repo.addPlayer(id, playerId);
+    emitLobbyUpdate(updatedLobby, { systemMessage: `Player ${playerId} joined the lobby` });
+    return updatedLobby;
   }
 
-  async removePlayerFromLobby(id: string, playerId: string): Promise<Lobby> {
+  async removePlayerFromLobby(id: string, playerId: string): Promise<Lobby | null> {
     const schema = lobbySchema.pick({ id: true, ownerId: true });
     this.validate(schema, { id, ownerId: playerId });
-    const lobby = await this.repo.removePlayer(id, playerId);
-    emitLobbyUpdate(lobby, { systemMessage: `Player ${playerId} left the lobby` });
-    return lobby;
+
+    const lobby = await this.repo.findById(id);
+    const players = ((lobby as any).players ?? []) as any[];
+
+    if (players.length === 1 && players[0]?.id === playerId) {
+      await this.repo.delete(id);
+      emitLobbyClosed(id, "Lobby deleted (last player left)");
+      await this.sweepEndedLobbies();
+      return null;
+    }
+
+    const updatedLobby = await this.repo.removePlayer(id, playerId);
+    emitLobbyUpdate(updatedLobby, { systemMessage: `Player ${playerId} left the lobby` });
+    return updatedLobby;
   }
 
   async deleteLobby(id: string): Promise<void> {
@@ -136,5 +192,6 @@ export class LobbyService extends BaseService {
 
     await this.repo.delete(id);
     emitLobbyClosed(id, "Lobby deleted");
+    await this.sweepEndedLobbies();
   }
 }

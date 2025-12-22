@@ -4,12 +4,24 @@ import type { Game, PlayerState, EnemyState } from "./game.model.ts";
 import { GamePhase } from "@prisma/client";
 
 export class GameRepository extends BaseRepository {
+  private gameInclude() {
+    return {
+      players: { include: { user: true } },
+      enemies: true,
+    } as const;
+  }
+
+  async findEnemyStateById(id: string): Promise<EnemyState> {
+    const enemy = await this.db.enemyState.findUnique({ where: { id } });
+    if (!enemy) {
+      throw new NotFoundError(`Enemy ${id} not found`);
+    }
+    return enemy as unknown as EnemyState;
+  }
+
   async findAll(): Promise<Game[]> {
     const result = await this.db.game.findMany({
-      include: {
-        players: true,
-        enemies: true,
-      },
+      include: this.gameInclude(),
     });
     return result as unknown as Game[];
   }
@@ -38,10 +50,7 @@ export class GameRepository extends BaseRepository {
         turnOrder: data.turnOrder,
         currentTurn: 0,
       },
-      include: {
-        players: true,
-        enemies: true,
-      },
+      include: this.gameInclude(),
     });
     return result as unknown as Game;
   }
@@ -49,10 +58,7 @@ export class GameRepository extends BaseRepository {
   async findById(id: string): Promise<Game> {
     const game = await this.db.game.findUnique({
       where: { id },
-      include: {
-        players: true,
-        enemies: true,
-      },
+      include: this.gameInclude(),
     });
     if (!game) {
       throw new NotFoundError(`Game ${id} not found`);
@@ -63,10 +69,7 @@ export class GameRepository extends BaseRepository {
   async findByLobbyId(lobbyId: string): Promise<Game | null> {
     const result = await this.db.game.findUnique({
       where: { lobbyId },
-      include: {
-        players: true,
-        enemies: true,
-      },
+      include: this.gameInclude(),
     });
     return result as unknown as Game | null;
   }
@@ -83,10 +86,7 @@ export class GameRepository extends BaseRepository {
     const result = await this.db.game.update({
       where: { id },
       data,
-      include: {
-        players: true,
-        enemies: true,
-      },
+      include: this.gameInclude(),
     });
     return result as unknown as Game;
   }
@@ -160,5 +160,9 @@ export class GameRepository extends BaseRepository {
 
   async deleteEnemyState(id: string): Promise<void> {
     await this.db.enemyState.delete({ where: { id } });
+  }
+
+  async deleteEnemiesByGameId(gameId: string): Promise<void> {
+    await this.db.enemyState.deleteMany({ where: { gameId } });
   }
 }
