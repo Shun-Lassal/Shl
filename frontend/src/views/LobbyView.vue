@@ -2,70 +2,40 @@
   <div class="space-y-8">
     <!-- Lobby Detail -->
     <div v-if="activeLobbyId" class="space-y-6">
-      <div class="flex justify-between items-center">
+      <div class="flex items-center justify-between gap-4">
         <div>
-          <h1 class="text-3xl font-bold text-white">Lobby</h1>
-          <p class="text-gray-400 mt-2">ID: {{ activeLobbyId }}</p>
+          <h1 class="text-3xl font-black tracking-tight text-white">Lobby</h1>
+          <p class="mt-2 text-sm text-slate-400">ID: {{ activeLobbyId }}</p>
         </div>
-        <button
-          @click="router.push('/lobbies')"
-          class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition"
-        >
-          ← Retour
-        </button>
+        <UiButton variant="secondary" @click="router.push('/lobbies')">Retour</UiButton>
       </div>
 
-      <div v-if="lobbyStore.currentLobby" class="bg-slate-800 rounded-lg border border-purple-500 p-6">
-        <div class="flex justify-between items-start mb-4">
+      <UiCard v-if="lobbyStore.currentLobby" padding="lg">
+        <div class="flex items-start justify-between gap-3">
           <div>
             <h2 class="text-2xl font-bold text-white">{{ lobbyStore.currentLobby.name }}</h2>
-            <p class="text-gray-400 text-sm mt-1">
-              Propriétaire: {{ lobbyStore.currentLobby.ownerId }}
+            <p class="mt-1 text-sm text-slate-400">
+              {{ (lobbyStore.currentLobby.players?.length || 0) }}/{{ lobbyStore.currentLobby.slots }} joueurs
             </p>
           </div>
-          <span
-            :class="[
-              'px-3 py-1 rounded-full text-xs font-semibold',
-              {
-                'bg-green-900 text-green-200': lobbyStore.currentLobby.status === 'WAITING',
-                'bg-blue-900 text-blue-200': lobbyStore.currentLobby.status === 'PLAYING',
-                'bg-gray-900 text-gray-200': lobbyStore.currentLobby.status === 'ENDED',
-              },
-            ]"
-          >
-            {{ lobbyStore.currentLobby.status }}
-          </span>
+          <LobbyStatusBadge :status="lobbyStore.currentLobby.status" />
         </div>
 
-        <div class="mb-4 text-gray-400">
-          <span class="font-semibold">Joueurs:</span>
-          {{ lobbyStore.currentLobby.players?.length || 0 }}/{{ lobbyStore.currentLobby.slots }}
-          <span v-if="lobbyStore.currentLobby.password" class="ml-2 text-sm">🔒</span>
-        </div>
-
-        <div class="mb-6">
-          <div class="text-sm text-gray-400 mb-2">Joueurs:</div>
-          <div class="space-y-1">
-            <div
-              v-for="player in lobbyStore.currentLobby.players"
-              :key="player.id"
-              class="text-sm text-gray-300 bg-slate-700 px-2 py-1 rounded"
-            >
-              {{ player.name }}
-            </div>
+        <div class="mt-6">
+          <div class="text-xs font-semibold text-slate-400">Joueurs</div>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <UiBadge v-for="p in lobbyStore.currentLobby.players" :key="p.id" variant="neutral">
+              {{ p.name }}
+            </UiBadge>
           </div>
         </div>
 
-        <div v-if="lobbyStore.error" class="mb-4 p-3 bg-red-900 border border-red-500 rounded-lg text-red-200 text-sm">
+        <UiAlert v-if="lobbyStore.error" class="mt-6" variant="danger">
           {{ lobbyStore.error }}
-        </div>
+        </UiAlert>
 
-        <div class="flex gap-2">
-          <button
-            v-if="canJoinOrRejoinCurrentLobby"
-            @click="joinLobby(lobbyStore.currentLobby)"
-            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition text-sm"
-          >
+        <div class="mt-6 flex flex-wrap gap-2">
+          <UiButton v-if="canJoinOrRejoinCurrentLobby" :disabled="lobbyStore.isLoading" @click="joinLobbyById({ lobbyId: lobbyStore.currentLobby.id })">
             {{
               lobbyStore.currentLobby.status === 'PLAYING'
                 ? 'Rejoindre la partie'
@@ -73,219 +43,98 @@
                   ? 'Rejoindre à nouveau'
                   : 'Rejoindre'
             }}
-          </button>
-          <button
+          </UiButton>
+          <UiButton
             v-if="canStartGame"
-            @click="startGame"
+            variant="primary"
             :disabled="startingGame"
-            class="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white font-semibold rounded-lg transition text-sm disabled:opacity-50"
+            :loading="startingGame"
+            @click="startGame"
           >
-            {{ startingGame ? 'Lancement...' : 'Lancer le jeu' }}
-          </button>
-          <button
-            @click="refreshCurrentLobby"
-            :disabled="lobbyStore.isLoading"
-            class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition text-sm disabled:opacity-50"
-          >
-            {{ lobbyStore.isLoading ? 'Chargement...' : 'Rafraîchir' }}
-          </button>
+            Lancer le jeu
+          </UiButton>
+          <UiButton variant="secondary" :disabled="lobbyStore.isLoading" @click="refreshCurrentLobby">
+            Rafraîchir
+          </UiButton>
         </div>
-      </div>
+      </UiCard>
 
-      <div v-else class="text-center py-12 bg-slate-800 rounded-lg border border-purple-500">
-        <p class="text-gray-400">Chargement du lobby...</p>
-      </div>
+      <UiCard v-else class="text-center py-12" padding="lg">
+        <div class="mx-auto flex w-fit items-center gap-3 text-slate-300">
+          <UiSpinner />
+          <span>Chargement du lobby…</span>
+        </div>
+      </UiCard>
     </div>
 
     <!-- Lobby List -->
     <div v-else>
-    <!-- Header with Create Button -->
-    <div class="flex justify-between items-center">
-      <div>
-        <h1 class="text-3xl font-bold text-white">Lobbies</h1>
-        <p class="text-gray-400 mt-2">Rejoignez une partie ou en créez une nouvelle</p>
-      </div>
-      <div class="flex items-center gap-2">
-        <button
-          @click="lobbyStore.fetchLobbies()"
-          :disabled="lobbyStore.isLoading"
-          class="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition disabled:opacity-50"
-        >
-          {{ lobbyStore.isLoading ? 'Chargement...' : 'Rafraîchir' }}
-        </button>
-        <button
-          @click="showCreateForm = true"
-          class="px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-semibold rounded-lg transition"
-        >
-          + Créer un Lobby
-        </button>
-      </div>
-    </div>
-
-    <!-- Create Lobby Form -->
-    <div v-if="showCreateForm" class="bg-slate-800 rounded-lg border border-purple-500 p-8">
-      <h2 class="text-2xl font-bold text-white mb-6">Créer un nouveau Lobby</h2>
-      <form @submit.prevent="handleCreateLobby" class="space-y-4">
+      <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <label for="name" class="block text-sm font-medium text-gray-300 mb-2">
-            Nom du Lobby
-          </label>
-          <input
-            id="name"
-            v-model="createForm.name"
-            type="text"
-            required
-            class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition"
-            placeholder="Mon épique aventure"
-          />
+          <h1 class="text-3xl font-black tracking-tight text-white">Lobbies</h1>
+          <p class="mt-2 text-sm text-slate-400">Rejoignez une partie ou créez-en une nouvelle.</p>
         </div>
-
-        <div>
-          <label for="slots" class="block text-sm font-medium text-gray-300 mb-2">
-            Nombre de joueurs (1-4)
-          </label>
-          <input
-            id="slots"
-            v-model.number="createForm.slots"
-            type="number"
-            min="1"
-            max="4"
-            required
-            class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition"
-          />
-        </div>
-
-        <div>
-          <label for="password" class="block text-sm font-medium text-gray-300 mb-2">
-            Mot de passe (optionnel)
-          </label>
-          <input
-            id="password"
-            v-model="createForm.password"
-            type="password"
-            class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition"
-            placeholder="Laissez vide pour public"
-          />
-        </div>
-
-        <div v-if="lobbyStore.error" class="p-3 bg-red-900 border border-red-500 rounded-lg text-red-200 text-sm">
-          {{ lobbyStore.error }}
-        </div>
-
-        <div class="flex gap-4">
-          <button
-            type="submit"
-            :disabled="lobbyStore.isLoading"
-            class="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition disabled:opacity-50"
-          >
-            {{ lobbyStore.isLoading ? 'Création...' : 'Créer' }}
-          </button>
-          <button
-            type="button"
-            @click="showCreateForm = false"
-            class="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition"
-          >
-            Annuler
-          </button>
-        </div>
-      </form>
-    </div>
-
-    <!-- Loading State -->
-    <div v-if="lobbyStore.isLoading && lobbyStore.lobbies.length === 0" class="text-center py-12">
-      <div class="inline-block animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full"></div>
-      <p class="text-gray-400 mt-4">Chargement des lobbies...</p>
-    </div>
-
-    <!-- Lobbies List -->
-    <div v-else-if="lobbyStore.lobbies.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div
-        v-for="lobby in lobbyStore.lobbies"
-        :key="lobby.id"
-        class="bg-slate-800 rounded-lg border border-purple-500 p-6 hover:border-purple-400 transition hover:shadow-lg hover:shadow-purple-500/20"
-      >
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <h3 class="text-xl font-bold text-white">{{ lobby.name }}</h3>
-            <p class="text-gray-400 text-sm mt-1">
-              Propriétaire: {{ lobby.ownerId }}
-            </p>
-          </div>
-          <span
-            :class="[
-              'px-3 py-1 rounded-full text-xs font-semibold',
-              {
-                'bg-green-900 text-green-200': lobby.status === 'WAITING',
-                'bg-blue-900 text-blue-200': lobby.status === 'PLAYING',
-                'bg-gray-900 text-gray-200': lobby.status === 'ENDED',
-              },
-            ]"
-          >
-            {{ lobby.status }}
-          </span>
-        </div>
-
-        <div class="mb-4 space-y-2">
-          <div class="text-gray-400">
-            <span class="font-semibold">Joueurs:</span>
-            {{ lobby.players?.length || 0 }}/{{ lobby.slots }}
-          </div>
-          <div v-if="lobby.password" class="text-gray-400 text-sm">
-            🔒 Protégé par mot de passe
-          </div>
-        </div>
-
-        <!-- Player List -->
-        <div class="mb-4">
-          <div class="text-sm text-gray-400 mb-2">Joueurs:</div>
-          <div class="space-y-1">
-            <div
-              v-for="player in lobby.players"
-              :key="player.id"
-              class="text-sm text-gray-300 bg-slate-700 px-2 py-1 rounded"
-            >
-              {{ player.name }}
-            </div>
-            <div
-              v-if="!lobby.players || lobby.players.length === 0"
-              class="text-sm text-gray-500 italic"
-            >
-              Aucun joueur
-            </div>
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
         <div class="flex gap-2">
-          <button
-            v-if="canJoinLobby(lobby)"
-            @click="joinLobby(lobby)"
-            class="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition text-sm"
-          >
-            {{ lobby.status === 'PLAYING' ? 'Rejoindre la partie' : 'Rejoindre' }}
-          </button>
-          <button
-            v-else
-            disabled
-            class="flex-1 px-4 py-2 bg-slate-700 text-gray-400 font-semibold rounded-lg text-sm cursor-not-allowed"
-          >
-            Non disponible
-          </button>
-          <button
-            @click="viewLobby(lobby)"
-            class="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition text-sm"
-          >
-            Voir détails
-          </button>
+          <UiButton variant="secondary" :disabled="lobbyStore.isLoading" @click="lobbyStore.fetchLobbies()">
+            Rafraîchir
+          </UiButton>
+          <UiButton variant="primary" @click="openCreate">
+            Créer un lobby
+          </UiButton>
         </div>
       </div>
-    </div>
 
-    <!-- Empty State -->
-    <div v-else class="text-center py-12 bg-slate-800 rounded-lg border border-purple-500">
-      <p class="text-gray-400 text-lg">Aucun lobby disponible</p>
-      <p class="text-gray-500 text-sm mt-2">Soyez le premier à en créer un!</p>
-    </div>
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="lg:col-span-1">
+          <LobbyCreateCard
+            v-if="showCreateForm"
+            :form="createForm"
+            :disabled="lobbyStore.isLoading"
+            :error="lobbyStore.error"
+            @submit="handleCreateLobby"
+            @cancel="closeCreate"
+          />
+          <UiCard v-else padding="lg">
+            <div class="space-y-3">
+              <div class="text-lg font-bold text-white">Créer une partie</div>
+              <p class="text-sm text-slate-400">
+                Créez un lobby public ou protégé, puis lancez la partie quand tout le monde est prêt.
+              </p>
+              <UiButton class="w-full" @click="openCreate">Créer un lobby</UiButton>
+            </div>
+          </UiCard>
+        </div>
+
+        <div class="lg:col-span-2 space-y-4">
+          <UiCard v-if="lobbyStore.isLoading && lobbyStore.lobbies.length === 0" class="text-center py-10" padding="lg">
+            <div class="mx-auto flex w-fit items-center gap-3 text-slate-300">
+              <UiSpinner />
+              <span class="text-sm">Chargement des lobbies…</span>
+            </div>
+          </UiCard>
+
+          <div v-else-if="lobbyStore.lobbies.length > 0" class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <LobbyListCard
+              v-for="lobby in lobbyStore.lobbies"
+              :key="lobby.id"
+              :lobby="lobby"
+              :current-user-id="myUserId"
+              :disabled="lobbyStore.isLoading"
+              :can-join="canJoinLobby(lobby)"
+              @view="viewLobby(lobby)"
+              @join="joinLobbyById"
+            />
+          </div>
+
+          <UiCard v-else class="text-center py-10" padding="lg">
+            <div class="text-lg font-bold text-white">Aucun lobby</div>
+            <div class="mt-2 text-sm text-slate-400">Soyez le premier à en créer un.</div>
+            <div class="mt-6 flex justify-center">
+              <UiButton @click="openCreate">Créer un lobby</UiButton>
+            </div>
+          </UiCard>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -297,6 +146,14 @@ import { useAuthStore } from '../stores/auth';
 import { useLobbyStore } from '../stores/lobby';
 import type { Lobby } from '../types';
 import { getSocket } from '../utils/socket';
+import UiAlert from '../components/ui/UiAlert.vue';
+import UiBadge from '../components/ui/UiBadge.vue';
+import UiButton from '../components/ui/UiButton.vue';
+import UiCard from '../components/ui/UiCard.vue';
+import UiSpinner from '../components/ui/UiSpinner.vue';
+import LobbyCreateCard from '../components/lobby/LobbyCreateCard.vue';
+import LobbyListCard from '../components/lobby/LobbyListCard.vue';
+import LobbyStatusBadge from '../components/lobby/LobbyStatusBadge.vue';
 
 const authStore = useAuthStore();
 const lobbyStore = useLobbyStore();
@@ -314,6 +171,8 @@ const activeLobbyId = computed(() => {
   const id = route.params.id;
   return typeof id === 'string' && id.length ? id : null;
 });
+
+const myUserId = computed(() => authStore.user?.id || null);
 
 const isUserInCurrentLobby = computed(() => {
   const lobby = lobbyStore.currentLobby;
@@ -441,6 +300,10 @@ onMounted(async () => {
 
   await syncLobbyFromRoute();
   syncSocketRoomFromRoute();
+
+  if (route.query.create === 'true') {
+    showCreateForm.value = true;
+  }
 });
 
 // Watch for error changes
@@ -502,36 +365,35 @@ const handleCreateLobby = async () => {
     createForm.password || undefined
   );
   if (lobby) {
-    showCreateForm.value = false;
-    createForm.name = '';
-    createForm.slots = 1;
-    createForm.password = '';
+    closeCreate();
     // Navigate to lobby
     await router.push(`/lobby/${lobby.id}`);
   }
 };
 
-const joinLobby = async (lobby: Lobby) => {
-  const userId = authStore.user?.id;
-  const alreadyInLobby = !!userId && (lobby.players ?? []).some(p => p.id === userId);
-  let password = undefined;
-  // Don't prompt for password during PLAYING; rejoin is validated server-side.
-  if (lobby.status !== 'PLAYING' && lobby.password && !alreadyInLobby) {
-    password = prompt('Ce lobby est protégé. Entrez le mot de passe:');
-    if (!password) return;
-  }
-  
-  const joined = await lobbyStore.joinLobby(lobby.id, password);
+const joinLobbyById = async (payload: { lobbyId: string; password?: string }) => {
+  const joined = await lobbyStore.joinLobby(payload.lobbyId, payload.password);
   if (joined) {
     if (joined.status === 'PLAYING') {
       await router.push('/game');
     } else {
-      await router.push(`/lobby/${lobby.id}`);
+      await router.push(`/lobby/${payload.lobbyId}`);
     }
   }
 };
 
 const viewLobby = async (lobby: Lobby) => {
   await router.push(`/lobby/${lobby.id}`);
+};
+
+const openCreate = () => {
+  showCreateForm.value = true;
+};
+
+const closeCreate = () => {
+  showCreateForm.value = false;
+  createForm.name = '';
+  createForm.slots = 1;
+  createForm.password = '';
 };
 </script>

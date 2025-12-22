@@ -1,68 +1,62 @@
 <template>
   <div class="space-y-8">
-    <!-- Welcome Section -->
-    <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg shadow-lg p-8 text-white">
-      <h1 class="text-4xl font-bold mb-2">Bienvenue dans Slay The Horde!</h1>
-      <p class="text-lg opacity-90">Préparez-vous pour une aventure roguelike épique</p>
+    <UiCard padding="lg">
+      <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div class="space-y-2">
+          <h1 class="text-3xl font-black tracking-tight text-white">Accueil</h1>
+          <p class="text-slate-300">
+            Planifiez vos cartes, protégez vos alliés et grimpez les étages en coop.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <UiButton to="/lobbies" variant="primary">Lobbies</UiButton>
+          <UiButton to="/lobbies?create=true" variant="secondary">Créer un lobby</UiButton>
+        </div>
+      </div>
+    </UiCard>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <UiCard padding="sm">
+        <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Lobbies actifs</div>
+        <div class="mt-2 text-3xl font-black text-white">{{ stats.lobbyCount }}</div>
+      </UiCard>
+      <UiCard padding="sm">
+        <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Joueurs (dans les lobbies)</div>
+        <div class="mt-2 text-3xl font-black text-white">{{ stats.playerCount }}</div>
+      </UiCard>
+      <UiCard padding="sm">
+        <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Progression</div>
+        <div class="mt-2 text-3xl font-black text-white">Étage {{ stats.maxFloor }}</div>
+      </UiCard>
     </div>
 
-    <!-- Quick Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-slate-800 rounded-lg border border-purple-500 p-6">
-        <div class="text-4xl font-bold text-purple-400 mb-2">{{ stats.lobbyCount }}</div>
-        <div class="text-gray-400">Lobbies actifs</div>
-      </div>
-      <div class="bg-slate-800 rounded-lg border border-purple-500 p-6">
-        <div class="text-4xl font-bold text-purple-400 mb-2">{{ stats.playerCount }}</div>
-        <div class="text-gray-400">Joueurs en ligne</div>
-      </div>
-      <div class="bg-slate-800 rounded-lg border border-purple-500 p-6">
-        <div class="text-4xl font-bold text-purple-400 mb-2">Étage Max</div>
-        <div class="text-gray-400">{{ stats.maxFloor }}</div>
-      </div>
-    </div>
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <UiCard padding="lg">
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="text-lg font-bold text-white">Démarrer</div>
+            <UiBadge variant="primary">Co-op</UiBadge>
+          </div>
+          <p class="text-sm text-slate-300">
+            Rejoignez un lobby existant ou créez le vôtre. Le propriétaire démarre la partie quand tout le monde est prêt.
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <UiButton to="/lobbies">Rejoindre un lobby</UiButton>
+            <UiButton to="/lobbies?create=true" variant="secondary">Créer un lobby</UiButton>
+          </div>
+        </div>
+      </UiCard>
 
-    <!-- CTA Buttons -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <router-link
-        to="/lobbies"
-        class="bg-gradient-to-br from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white rounded-lg p-8 text-center transition transform hover:scale-105"
-      >
-        <div class="text-3xl mb-2">🎪</div>
-        <div class="text-xl font-bold">Rejoindre un Lobby</div>
-        <div class="text-sm opacity-75 mt-2">Chercher et rejoindre un lobby existant</div>
-      </router-link>
-      <router-link
-        to="/lobbies?create=true"
-        class="bg-gradient-to-br from-pink-600 to-pink-800 hover:from-pink-700 hover:to-pink-900 text-white rounded-lg p-8 text-center transition transform hover:scale-105"
-      >
-        <div class="text-3xl mb-2">✨</div>
-        <div class="text-xl font-bold">Créer un Lobby</div>
-        <div class="text-sm opacity-75 mt-2">Créer votre propre partie et attendre des joueurs</div>
-      </router-link>
-    </div>
-
-    <!-- Info Section -->
-    <div class="bg-slate-800 rounded-lg border border-purple-500 p-8">
-      <h2 class="text-2xl font-bold text-white mb-4">Comment jouer</h2>
-      <div class="space-y-4 text-gray-300">
-        <p>
-          <span class="text-purple-400 font-semibold">1. Créez ou rejoignez un Lobby</span>
-          - Attendez que les joueurs se rejoignent (max 4 joueurs)
-        </p>
-        <p>
-          <span class="text-purple-400 font-semibold">2. Démarrez la partie</span>
-          - Commencez votre aventure roguelike
-        </p>
-        <p>
-          <span class="text-purple-400 font-semibold">3. Explorez et combattez</span>
-          - Parcourez les étages, collectez des cartes, et éliminez vos ennemis
-        </p>
-        <p>
-          <span class="text-purple-400 font-semibold">4. Survivez et triomphez</span>
-          - Gagnez des points en fonction de votre position finale
-        </p>
-      </div>
+      <UiCard padding="lg">
+        <div class="space-y-4">
+          <div class="text-lg font-bold text-white">Comment ça marche</div>
+          <ol class="space-y-2 text-sm text-slate-300">
+            <li><span class="font-semibold text-slate-100">1.</span> Chaque round, vous planifiez une carte.</li>
+            <li><span class="font-semibold text-slate-100">2.</span> Vous pouvez aider un allié avec ♥ (soin) ou ♦ (bouclier).</li>
+            <li><span class="font-semibold text-slate-100">3.</span> Une fois tous validés, le serveur résout le round.</li>
+          </ol>
+        </div>
+      </UiCard>
     </div>
   </div>
 </template>
@@ -70,6 +64,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useLobbyStore } from '../stores/lobby';
+import UiBadge from '../components/ui/UiBadge.vue';
+import UiButton from '../components/ui/UiButton.vue';
+import UiCard from '../components/ui/UiCard.vue';
 
 const lobbyStore = useLobbyStore();
 

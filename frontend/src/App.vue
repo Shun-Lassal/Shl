@@ -1,44 +1,31 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-    <!-- Header -->
-    <header class="bg-slate-800 border-b border-purple-500 shadow-lg">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-600 rounded-lg flex items-center justify-center font-bold text-white">
-            SHL
+  <div class="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950/30 to-slate-950">
+    <header class="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/70 backdrop-blur">
+      <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4">
+        <RouterLink to="/home" class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600" />
+          <div class="leading-tight">
+            <div class="text-sm font-black text-white">Slay The Horde</div>
+            <div class="text-xs text-slate-400" v-if="authStore.isAuthenticated">
+              {{ authStore.user?.name }}
+            </div>
           </div>
-          <h1 class="text-2xl font-bold text-white">Slay The Horde</h1>
-        </div>
-        <nav class="flex items-center gap-6">
-          <div v-if="authStore.isAuthenticated" class="flex items-center gap-6">
-            <span class="text-gray-300">{{ authStore.user?.name }}</span>
-            <button
-              @click="handleLogout"
-              class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
-            >
-              Déconnexion
-            </button>
+        </RouterLink>
+
+        <nav class="flex items-center gap-2">
+          <UiButton v-if="authStore.isAuthenticated" to="/home" variant="ghost" size="sm">Accueil</UiButton>
+          <UiButton v-if="authStore.isAuthenticated" to="/lobbies" variant="ghost" size="sm">Lobbies</UiButton>
+
+          <div v-if="!authStore.isAuthenticated" class="flex items-center gap-2">
+            <UiButton to="/login" variant="secondary" size="sm">Connexion</UiButton>
+            <UiButton to="/register" variant="primary" size="sm">Inscription</UiButton>
           </div>
-          <div v-else class="flex gap-3">
-            <router-link
-              to="/login"
-              class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition"
-            >
-              Connexion
-            </router-link>
-            <router-link
-              to="/register"
-              class="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition"
-            >
-              Inscription
-            </router-link>
-          </div>
+          <UiButton v-else variant="danger" size="sm" @click="handleLogout">Déconnexion</UiButton>
         </nav>
       </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="mx-auto max-w-7xl px-4 py-8">
       <router-view />
     </main>
   </div>
@@ -46,8 +33,9 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore } from './stores/auth';
+import UiButton from './components/ui/UiButton.vue';
 
 const authStore = useAuthStore();
 const router = useRouter();
