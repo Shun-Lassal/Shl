@@ -107,7 +107,7 @@
         <!-- Enemies Row -->
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           <GameEnemyCard
-            v-for="enemy in gameStore.currentGame.enemies"
+            v-for="enemy in orderedEnemies"
             :key="enemy.id"
             :enemy="enemy"
             :selected="isEnemySelected(enemy.id)"
@@ -124,7 +124,7 @@
         <!-- Players Row -->
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           <GamePlayerCard
-            v-for="p in gameStore.currentGame.players"
+            v-for="p in orderedPlayers"
             :key="p.id"
             :player="p"
             :name="p.user?.name || shortId(p.userId)"
@@ -209,6 +209,40 @@ const currentEntityId = computed(() => {
   const g = gameStore.currentGame;
   if (!g) return null;
   return g.turnOrder[g.currentTurn] || null;
+});
+
+const orderedEnemies = computed<EnemyState[]>(() => {
+  const g = gameStore.currentGame;
+  if (!g) return [];
+  const turnIndex = new Map<string, number>();
+  g.turnOrder.forEach((entityId, idx) => {
+    if (entityId.startsWith('enemy-')) {
+      turnIndex.set(entityId.replace('enemy-', ''), idx);
+    }
+  });
+  return [...g.enemies].sort((a, b) => {
+    const orderA = turnIndex.get(a.id) ?? a.order ?? 0;
+    const orderB = turnIndex.get(b.id) ?? b.order ?? 0;
+    if (orderA !== orderB) return orderA - orderB;
+    return a.id.localeCompare(b.id);
+  });
+});
+
+const orderedPlayers = computed<PlayerState[]>(() => {
+  const g = gameStore.currentGame;
+  if (!g) return [];
+  const turnIndex = new Map<string, number>();
+  g.turnOrder.forEach((entityId, idx) => {
+    if (entityId.startsWith('player-')) {
+      turnIndex.set(entityId.replace('player-', ''), idx);
+    }
+  });
+  return [...g.players].sort((a, b) => {
+    const orderA = turnIndex.get(a.userId) ?? a.order ?? 0;
+    const orderB = turnIndex.get(b.userId) ?? b.order ?? 0;
+    if (orderA !== orderB) return orderA - orderB;
+    return (a.user?.name || a.userId).localeCompare(b.user?.name || b.userId);
+  });
 });
 
 const isCurrentEntity = (entityId: string) => currentEntityId.value === entityId;

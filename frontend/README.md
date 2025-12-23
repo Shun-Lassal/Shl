@@ -15,9 +15,10 @@ npm install
 ## Variables d'environnement
 Créez un fichier `.env` local si nécessaire :
 ```
-VITE_API_URL=http://localhost:3000
+# Laisser vide pour que le frontend résolve automatiquement http(s)://<host>:3000
+VITE_API_URL=
 ```
-`VITE_API_URL` doit pointer vers l'URL de l'API (variable injectée à l'exécution dans le code via `import.meta.env`).
+Si la variable est vide, le frontend déduira automatiquement l'URL de l'API à partir du navigateur (`http(s)://<machine>:3000`). Définissez `VITE_API_URL` uniquement si l'API répond sur un autre domaine/port.
 
 ## Commandes utiles
 - `npm run dev` : démarre le serveur de développement Vite sur `http://localhost:5173`.
@@ -28,4 +29,4 @@ VITE_API_URL=http://localhost:3000
 Tailwind est configuré via `tailwind.config.js` et PostCSS (`autoprefixer`). Ajoutez vos composants Vue dans `src/` et centralisez l'état partagé avec Pinia.
 
 ## Intégration avec le backend
-En développement, assurez-vous que le backend tourne sur `http://localhost:3000` (ou ajustez `VITE_API_URL`). Pour un usage via Docker, toutes les variables d'environnement nécessaires sont définies dans `docker-compose.yml`.
+En développement, assurez-vous que le backend tourne sur `http://<votre_machine>:3000`. Si vous laissez `VITE_API_URL` vide, l'URL est déduite automatiquement, ce qui permet aux personnes de votre réseau local d'utiliser le frontend sans modification supplémentaire. Pour un usage via Docker, toutes les variables d'environnement nécessaires sont définies dans `docker-compose.yml`.

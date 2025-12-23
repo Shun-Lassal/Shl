@@ -102,6 +102,10 @@ To also remove the database volumes:
 docker-compose down -v
 ```
 
+## 🌐 Share Your Local Instance on the LAN
+
+Want teammates on the same network (e.g. `172.20.0.5`) to try the app without extra config? Run `docker-compose up` normally, then share `http://<your-ip>:5173`. The frontend now points to the backend running on the same host automatically, and the backend (when `CORS_ORIGIN` is empty and `NODE_ENV=development`) accepts requests from any origin on your LAN. For stricter setups, explicitly set `VITE_API_URL` (frontend) and `CORS_ORIGIN` (backend) to the domains you expect.
+
 ## 🔧 Development Setup (Without Docker)
 
 If you prefer to run services locally without Docker:
@@ -114,6 +118,9 @@ npm install
 
 # Set up environment variables
 export DATABASE_URL="postgresql://user:password@localhost:5432/shl"
+export HOST="0.0.0.0"         # exposes the API on all interfaces
+export PORT="3000"
+# Optional: restrict allowed frontends (comma-separated list)
 export CORS_ORIGIN="http://localhost:5173"
 
 # Generate Prisma client and sync database
@@ -132,7 +139,8 @@ cd frontend
 npm install
 
 # Set up environment variables
-export VITE_API_URL="http://localhost:3000"
+# Leave empty to auto-detect http(s)://<host>:3000
+export VITE_API_URL=""
 
 # Start development server
 npm run dev

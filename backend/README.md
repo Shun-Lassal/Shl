@@ -18,10 +18,16 @@ Copiez le fichier `.env` d'exemple si besoin et ajustez les valeurs :
 
 ```
 DATABASE_URL=postgresql://user:password@host:5432/database?schema=public
-CORS_ORIGIN=http://localhost:5173
+COOKIE_SECRET=votre_secret
+NODE_ENV=development
+HOST=0.0.0.0
+PORT=3000
+CORS_ORIGIN=
 ```
 
-`CORS_ORIGIN` accepte une liste séparée par des virgules si plusieurs frontends doivent accéder à l'API.
+`CORS_ORIGIN` accepte une liste séparée par des virgules si plusieurs frontends doivent accéder à l'API. Laissez la valeur vide en développement : l'API reflétera automatiquement toute origine provenant de votre réseau local, ce qui permet de tester depuis d'autres machines. En production, renseignez explicitement les URL autorisées.
+
+`HOST`/`PORT` contrôlent l'interface d'écoute d'Express. `HOST=0.0.0.0` est nécessaire pour rendre l'API joignable depuis un autre périphérique.
 
 ## Commandes utiles
 - `npm run dev` : lance le serveur en mode développement avec `ts-node` et rechargement via Nodemon.
@@ -38,4 +44,3 @@ Depuis la racine du projet :
 docker-compose up -d
 ```
 Ceci démarre les services déclarés dans `docker-compose.yml`, notamment la base PostgreSQL accessible pour Prisma.
-

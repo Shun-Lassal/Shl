@@ -50,6 +50,47 @@ export class GameService extends BaseService {
     return Math.max(1, Math.min(4, Math.round(baseCount * playerFactor)));
   }
 
+  private selectEnemyTypes(floor: number, enemyCount: number): EnemyType[] {
+    const tiers: EnemyType[] = ["GOBLIN", "ORC", "TROLL"];
+    const maxTier = Math.min(tiers.length - 1, Math.floor((floor - 1) / 3));
+    const allowedTypes = tiers.slice(0, maxTier + 1);
+    if (allowedTypes.length === 0) return [];
+    if (allowedTypes.length === 1) {
+      return Array(enemyCount).fill(allowedTypes[0]);
+    }
+
+    // Bias towards stronger enemies on higher floors but keep variety.
+    const weights = allowedTypes.map((_, idx) => 1 + idx * Math.max(1, floor / 6));
+    const picks: EnemyType[] = [];
+
+    // Ensure at least one highest-tier enemy when unlocked.
+    if (enemyCount > 0) {
+      picks.push(allowedTypes[allowedTypes.length - 1]);
+    }
+    // Encourage mixes by also forcing a secondary type when possible.
+    if (enemyCount > 1 && allowedTypes.length >= 2) {
+      picks.push(allowedTypes[Math.max(allowedTypes.length - 2, 0)]);
+    }
+
+    while (picks.length < enemyCount) {
+      picks.push(this.weightedEnemyPick(allowedTypes, weights));
+    }
+
+    return picks.slice(0, enemyCount);
+  }
+
+  private weightedEnemyPick(types: EnemyType[], weights: number[]): EnemyType {
+    const total = weights.reduce((sum, weight) => sum + weight, 0);
+    let roll = Math.random() * total;
+    for (let i = 0; i < types.length; i++) {
+      roll -= weights[i];
+      if (roll <= 0) {
+        return types[i];
+      }
+    }
+    return types[types.length - 1];
+  }
+
   async startPlanningRound(gameId: string, durationMs: number = 20000): Promise<void> {
     const game = await this.repo.findById(gameId);
     if (game.phase !== GamePhase.BATTLE) return;
@@ -401,7 +442,7 @@ export class GameService extends BaseService {
     // Create new enemies and intents for the next floor
     const alivePlayerIds = game.players.filter((p) => p.isAlive).map((p) => p.userId);
     const enemyCount = this.computeEnemyCount(nextFloor, alivePlayerIds.length);
-    const enemyTypes: EnemyType[] = ["GOBLIN", "ORC", "TROLL"];
+    const enemyTypes = this.selectEnemyTypes(nextFloor, enemyCount);
 
     const newTurnOrder: string[] = [];
     for (const p of game.players) {
@@ -409,7 +450,7 @@ export class GameService extends BaseService {
     }
 
     for (let i = 0; i < enemyCount; i++) {
-      const type = enemyTypes[Math.min(enemyTypes.length - 1, Math.floor((nextFloor - 1) / 3))];
+      const type = enemyTypes[i] ?? enemyTypes[enemyTypes.length - 1];
       const enemyData = generateEnemy(type, nextFloor);
       const target = alivePlayerIds.length ? alivePlayerIds[Math.floor(Math.random() * alivePlayerIds.length)] : undefined;
       enemyData.intent = {
@@ -511,12 +552,12 @@ export class GameService extends BaseService {
 
     // Initialize enemies (scaled by floor)
     const floor = 1;
-    const enemyTypes: EnemyType[] = ["GOBLIN", "ORC", "TROLL"];
     const alivePlayerIds = players.map((p: any) => p.id);
     const enemyCount = this.computeEnemyCount(floor, alivePlayerIds.length);
+    const enemyTypes = this.selectEnemyTypes(floor, enemyCount);
 
     for (let i = 0; i < enemyCount; i++) {
-      const type = enemyTypes[Math.min(enemyTypes.length - 1, Math.floor((floor - 1) / 3))];
+      const type = enemyTypes[i] ?? enemyTypes[enemyTypes.length - 1];
       const enemyData = generateEnemy(type, floor);
       // Ensure enemy intention includes current targets (for UI)
       enemyData.intent = {

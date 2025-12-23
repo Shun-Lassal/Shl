@@ -6,8 +6,8 @@ import { GamePhase } from "@prisma/client";
 export class GameRepository extends BaseRepository {
   private gameInclude() {
     return {
-      players: { include: { user: true } },
-      enemies: true,
+      players: { include: { user: true }, orderBy: { order: "asc" } },
+      enemies: { orderBy: { order: "asc" } },
     } as const;
   }
 
