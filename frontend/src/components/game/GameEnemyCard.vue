@@ -1,16 +1,16 @@
 <template>
   <div
-    class="w-full rounded-2xl border bg-gradient-to-b from-red-950/50 to-slate-900/60 p-4 transition"
+    class="w-full min-w-[180px] flex-shrink-0 rounded-2xl border bg-gradient-to-b from-red-950/50 to-slate-900/60 p-3 md:p-4 transition"
     :class="[
       selected ? 'ring-2 ring-yellow-400/90 border-yellow-400/40' : 'border-red-500/30',
       selectable ? 'cursor-pointer hover:border-red-400/60' : 'cursor-default',
     ]"
     @click="selectable ? $emit('toggle') : undefined"
   >
-    <div class="flex items-start justify-between gap-3">
+    <div class="flex flex-wrap items-start justify-between gap-3">
       <div>
-        <div class="text-lg font-bold text-red-200">{{ enemy.type }}</div>
-        <div class="text-xs text-red-200/70">HP {{ enemy.hp }}/{{ enemy.maxHp }}</div>
+        <div class="text-base md:text-lg font-bold text-red-200">{{ enemy.type }}</div>
+        <div class="text-[11px] md:text-xs text-red-200/70">HP {{ enemy.hp }}/{{ enemy.maxHp }}</div>
       </div>
       <UiBadge variant="danger">{{ intentShort }}</UiBadge>
     </div>
@@ -69,4 +69,3 @@ const intentShort = computed(() => {
   return `${props.enemy.intent.type} ${props.enemy.intent.value}`;
 });
 </script>
-

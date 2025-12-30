@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-[calc(100vh-4rem)]">
     <div class="mx-auto max-w-7xl px-4 py-6 space-y-6">
-      <div class="flex items-center justify-between gap-4">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 class="text-2xl font-bold">
             {{ gameStore.currentGame ? `Étage ${gameStore.currentGame.currentFloor}` : 'Chargement…' }}
@@ -27,7 +27,7 @@
         </div>
       </UiCard>
 
-      <div v-else class="space-y-6">
+      <div v-else class="space-y-4 sm:space-y-6">
         <!-- Game Over -->
         <div v-if="gameStore.currentGame.phase === 'GAME_OVER'" class="space-y-4">
           <UiCard class="text-center" padding="lg">
@@ -103,9 +103,9 @@
         </div>
 
         <!-- Battle Phase -->
-        <div v-else class="space-y-6">
+        <div v-else class="space-y-4 sm:space-y-6">
         <!-- Enemies Row -->
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div class="flex gap-3 overflow-x-auto pb-1 md:grid md:grid-cols-2 md:gap-4 lg:grid-cols-3 xl:grid-cols-4 md:overflow-visible">
           <GameEnemyCard
             v-for="enemy in orderedEnemies"
             :key="enemy.id"
@@ -122,7 +122,7 @@
         <div class="h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
 
         <!-- Players Row -->
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div class="flex gap-3 overflow-x-auto pb-1 md:grid md:grid-cols-2 md:gap-4 lg:grid-cols-3 xl:grid-cols-4 md:overflow-visible">
           <GamePlayerCard
             v-for="p in orderedPlayers"
             :key="p.id"
@@ -143,8 +143,8 @@
         </div>
 
         <!-- Action Panel -->
-        <UiCard padding="md">
-          <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <UiCard padding="md" class="sticky bottom-4 md:static">
+          <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div class="space-y-1">
               <div class="text-sm text-slate-200">
                 {{ isMyTurn ? 'Planifiez votre action' : 'En attente…' }}
@@ -162,7 +162,7 @@
             </div>
           </div>
 
-          <div v-if="selectedCard && needsTargets" class="mt-3 text-xs text-slate-400">
+          <div v-if="selectedCard && needsTargets" class="mt-2 text-xs text-slate-400">
             <span v-if="targetMode === 'ENEMIES'">
               Trèfle: jusqu’à 3 cibles, Pique: 1 cible. Si vous ne sélectionnez rien, la cible sera choisie automatiquement.
             </span>
@@ -237,12 +237,19 @@ const orderedPlayers = computed<PlayerState[]>(() => {
       turnIndex.set(entityId.replace('player-', ''), idx);
     }
   });
-  return [...g.players].sort((a, b) => {
+  const sorted = [...g.players].sort((a, b) => {
     const orderA = turnIndex.get(a.userId) ?? a.order ?? 0;
     const orderB = turnIndex.get(b.userId) ?? b.order ?? 0;
     if (orderA !== orderB) return orderA - orderB;
     return (a.user?.name || a.userId).localeCompare(b.user?.name || b.userId);
   });
+
+  const meId = myUserId.value;
+  if (!meId) return sorted;
+  const myIndex = sorted.findIndex(p => p.userId === meId);
+  if (myIndex <= 0) return sorted;
+  const [me] = sorted.splice(myIndex, 1);
+  return [me, ...sorted];
 });
 
 const isCurrentEntity = (entityId: string) => currentEntityId.value === entityId;
@@ -357,9 +364,9 @@ const selectedCardLabel = computed(() => {
     c.suit === 'HEARTS'
       ? `Soin +${c.value}`
       : c.suit === 'DIAMONDS'
-        ? `Bouclier +${c.value}`
+        ? `Armure +${c.value} (persiste)`
         : c.suit === 'SPADES'
-          ? `Attaque ${c.value} (1 cible)`
+          ? `Attaque ${c.value * 2} (1 cible)`
           : c.suit === 'CLUBS'
             ? `Attaque ${c.value} (jusqu'à 3 cibles)`
             : '—';
@@ -387,8 +394,8 @@ const suitIcon = (suit: CardSuit) => {
 
 const rewardEffectLabel = (c: Card) => {
   if (c.suit === 'HEARTS') return `+${c.value} soin`;
-  if (c.suit === 'DIAMONDS') return `+${c.value} bouclier`;
-  if (c.suit === 'SPADES') return `${c.value} dégâts (1 cible)`;
+  if (c.suit === 'DIAMONDS') return `+${c.value} armure persistante`;
+  if (c.suit === 'SPADES') return `${c.value * 2} dégâts (1 cible)`;
   if (c.suit === 'CLUBS') return `${c.value} dégâts (jusqu'à 3 cibles)`;
   return '—';
 };

@@ -10,11 +10,13 @@ export type EnemyType = keyof typeof ENEMY_TYPES;
 
 export function generateEnemy(type: EnemyType, floor: number): Omit<EnemyState, "id" | "gameId" | "order"> {
   const baseStats = ENEMY_TYPES[type];
+  // Light early boost so low floors feel a bit more threatening without spiking late-game.
+  const earlyBoost = Math.max(1, 1.15 - 0.05 * Math.max(0, floor - 1)); // 1: +15%, 2: +10%, 3: +5%, 4+: none
   // Softer scaling after floor 4 to avoid exponential spikes (especially noticeable in co-op).
   const earlyFloors = Math.min(Math.max(0, floor - 1), 3); // floors 1-4
   const lateFloors = Math.max(0, floor - 4); // floors 5+
-  const hpMultiplier = Math.pow(1.07, earlyFloors) * Math.pow(1.03, lateFloors);
-  const damageMultiplier = Math.pow(1, floor - 1);
+  const hpMultiplier = earlyBoost * Math.pow(1.07, earlyFloors) * Math.pow(1.03, lateFloors);
+  const damageMultiplier = earlyBoost * Math.pow(1.01, lateFloors);
 
   return {
     type,

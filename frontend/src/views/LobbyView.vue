@@ -2,7 +2,7 @@
   <div class="space-y-8">
     <!-- Lobby Detail -->
     <div v-if="activeLobbyId" class="space-y-6">
-      <div class="flex items-center justify-between gap-4">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 class="text-3xl font-black tracking-tight text-white">Lobby</h1>
           <p class="mt-2 text-sm text-slate-400">ID: {{ activeLobbyId }}</p>

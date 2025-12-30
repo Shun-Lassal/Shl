@@ -667,9 +667,11 @@ export class GameService extends BaseService {
         targets.push(...aliveEnemies.slice(0, maxTargets));
       }
 
+      const damagePerTarget = card.suit === "SPADES" ? card.value * 2 : card.value;
+
       for (const target of targets) {
         const current = await this.repo.findEnemyStateById(target.id);
-        const newHp = Math.max(0, current.hp - card.value);
+        const newHp = Math.max(0, current.hp - damagePerTarget);
         await this.repo.updateEnemyState(target.id, { hp: newHp });
       }
     } else {
@@ -711,6 +713,10 @@ export class GameService extends BaseService {
   }
 
   private async applyEnemyIntent(gameId: string, enemyId: string): Promise<void> {
+    // Always load fresh state to avoid executing intents for enemies killed earlier in the resolve.
+    const currentEnemy = await this.repo.findEnemyStateById(enemyId);
+    if (!currentEnemy || currentEnemy.hp <= 0) return;
+
     const game = await this.repo.findById(gameId);
     const enemy = game.enemies.find((e) => e.id === enemyId);
     if (!enemy || enemy.hp <= 0) return;
@@ -732,12 +738,20 @@ export class GameService extends BaseService {
       const targetPlayer = alivePlayers.find((p) => p.userId === targetUserId) ?? alivePlayers[0];
 
       const bonuses = Array.isArray(targetPlayer.bonuses) ? [...targetPlayer.bonuses] : [];
-      const shieldTotal = bonuses
-        .filter((b: any) => b?.type === "SHIELD" && typeof b.value === "number" && b.value > 0)
-        .reduce((sum: number, b: any) => sum + (b.value as number), 0);
 
-      const damage = Math.max(0, value - shieldTotal);
-      const newBonuses = bonuses.filter((b: any) => b?.type !== "SHIELD");
+      let remainingDamage = value;
+      const newBonuses = bonuses
+        .map((b: any) => {
+          if (b?.type !== "SHIELD" || typeof b.value !== "number" || b.value <= 0) return b;
+          const absorbed = Math.min(b.value, remainingDamage);
+          remainingDamage -= absorbed;
+          const leftover = b.value - absorbed;
+          if (leftover > 0) return { ...b, value: leftover };
+          return null;
+        })
+        .filter((b: any) => b !== null);
+
+      const damage = Math.max(0, remainingDamage);
       const newHp = Math.max(0, targetPlayer.hp - damage);
 
       await this.repo.updatePlayerState(targetPlayer.id, {

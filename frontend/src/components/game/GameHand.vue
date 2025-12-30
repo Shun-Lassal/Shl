@@ -4,7 +4,7 @@
       v-for="c in cards"
       :key="c.id"
       type="button"
-      class="group relative aspect-[2/3] w-full rounded-lg border bg-slate-950/40 p-2 text-left transition"
+      class="group relative aspect-[2/3] w-full rounded-lg border bg-slate-950/60 p-1.5 md:p-2 text-left transition"
       :class="[
         interactive ? 'hover:border-purple-400/70 hover:bg-slate-900/60' : 'cursor-default',
         selectedCardId === c.id ? 'ring-2 ring-purple-400/80 border-purple-400/70' : 'border-slate-800',
@@ -12,11 +12,11 @@
       :disabled="!interactive"
       @click="interactive ? $emit('select', c.id) : undefined"
     >
-      <div class="flex items-start justify-between">
-        <div class="text-xs font-black" :class="rankColor(c.suit)">{{ rankLabel(c.rank) }}</div>
-        <div class="text-sm" :class="suitColor(c.suit)">{{ suitIcon(c.suit) }}</div>
+      <div class="flex items-start justify-between text-[11px] md:text-xs">
+        <div class="font-black" :class="rankColor(c.suit)">{{ rankLabel(c.rank) }}</div>
+        <div class="" :class="suitColor(c.suit)">{{ suitIcon(c.suit) }}</div>
       </div>
-      <div class="mt-5 text-center text-xl font-black" :class="suitColor(c.suit)">
+      <div class="mt-3 md:mt-4 text-center text-lg md:text-xl font-black" :class="suitColor(c.suit)">
         {{ suitIcon(c.suit) }}
       </div>
     </button>
@@ -64,4 +64,3 @@ const suitColor = (suit: CardSuit) => {
 
 const rankColor = (suit: CardSuit) => suitColor(suit);
 </script>
-

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full rounded-2xl border bg-gradient-to-b from-slate-900/70 to-slate-950/30 p-4 transition"
+    class="w-full min-w-[220px] flex-shrink-0 rounded-2xl border bg-gradient-to-b from-slate-900/70 to-slate-950/30 p-3 md:p-4 transition"
     :class="[
       isMe ? 'border-purple-500/50 shadow-lg shadow-purple-500/10' : 'border-slate-800',
       canTarget ? 'cursor-pointer hover:border-emerald-400/60' : '',
@@ -8,17 +8,17 @@
     ]"
     @click="canTarget ? $emit('target') : undefined"
   >
-    <div class="flex items-start justify-between gap-3">
+    <div class="flex flex-wrap items-start justify-between gap-3">
       <div class="min-w-0">
-        <div class="truncate text-lg font-bold text-white">
+        <div class="truncate text-base md:text-lg font-bold text-white">
           {{ name }}
           <span v-if="isOwner" class="ml-1 text-xs font-semibold text-amber-200">(proprio)</span>
         </div>
-        <div class="text-xs text-slate-400">
+        <div class="text-[11px] md:text-xs text-slate-400">
           HP {{ player.hp }}/{{ player.maxHp }}
           <span v-if="shield > 0" class="ml-2 text-sky-300">Bouclier {{ shield }}</span>
         </div>
-        <div v-if="planningActive" class="mt-1 text-xs text-slate-300">
+        <div v-if="planningActive" class="mt-1 text-[11px] md:text-xs text-slate-300">
           <span :class="confirmed ? 'text-emerald-300' : 'text-slate-400'">
             {{ confirmed ? 'Validé' : 'En attente' }}
           </span>
@@ -109,4 +109,3 @@ const shield = computed(() => {
     .reduce((sum: number, b: any) => sum + (b.value as number), 0);
 });
 </script>
-
