@@ -1,8 +1,8 @@
-import { BaseService } from "../../shared/base/index.ts";
-import { ValidationError, ConflictError } from "../../shared/errors.ts";
-import { gameScoreSchema, newGameScoreSchema } from "./gameScore.model.ts";
-import type { GameScoreWithRelations, NewGameScore } from "./gameScore.model.ts";
-import { GameScoreRepository } from "./gameScore.repository.ts";
+import { BaseService } from "../../shared/base/index.js";
+import { ValidationError, ConflictError } from "../../shared/errors.js";
+import { gameScoreSchema, newGameScoreSchema } from "./gameScore.model.js";
+import type { GameScoreWithRelations, NewGameScore } from "./gameScore.model.js";
+import { GameScoreRepository } from "./gameScore.repository.js";
 
 export class GameScoreService extends BaseService {
   private repo: GameScoreRepository;

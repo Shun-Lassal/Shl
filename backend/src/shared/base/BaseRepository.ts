@@ -3,7 +3,7 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-import { prisma } from '../prisma.ts';
+import { prisma } from '../prisma.js';
 
 export abstract class BaseRepository {
   protected db: PrismaClient;

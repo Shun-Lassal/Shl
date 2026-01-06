@@ -2,7 +2,7 @@
  * Base Service class for standardized business logic
  */
 
-import { AppError, ValidationError } from '../errors.ts';
+import { AppError, ValidationError } from '../errors.js';
 
 export abstract class BaseService {
   /**

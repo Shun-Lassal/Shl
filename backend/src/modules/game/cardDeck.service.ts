@@ -1,4 +1,4 @@
-import type { Card, CardRank, CardSuit } from "./game.model.ts";
+import type { Card, CardRank, CardSuit } from "./game.model.js";
 import { randomUUID } from "node:crypto";
 
 const SUITS: CardSuit[] = ["HEARTS", "DIAMONDS", "CLUBS", "SPADES"];

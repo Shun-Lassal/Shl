@@ -1,15 +1,15 @@
 import cookieParser from "cookie-parser";
 import { z } from "zod";
 import type { Server, Socket } from "socket.io";
-import { sessionCookieChecker } from "../../shared/sessionCookie.service.ts";
-import { LobbyService } from "./lobby.service.ts";
+import { sessionCookieChecker } from "../../shared/sessionCookie.service.js";
+import { LobbyService } from "./lobby.service.js";
 import {
   emitLobbyChatMessage,
   emitLobbyUpdate,
   emitSystemMessage,
   getLobbyChatHistory,
   lobbyRoomName,
-} from "./lobby.realtime.ts";
+} from "./lobby.realtime.js";
 
 const joinSchema = z.object({ lobbyId: z.uuid() });
 const leaveSchema = z.object({ lobbyId: z.uuid() });

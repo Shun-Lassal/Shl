@@ -1,6 +1,6 @@
 import express from "express";
-import { LoginController } from './login.controller.ts';
-import { isLoggedInMiddleware } from '../../middlewares/auth.ts';
+import { LoginController } from './login.controller.js';
+import { isLoggedInMiddleware } from '../../middlewares/auth.js';
 
 const router = express.Router();
 

@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { lobbySummarySchema } from "../lobby/lobby.model.ts";
-import { userPublicSchema } from "../user/user.model.ts";
+import { lobbySummarySchema } from "../lobby/lobby.model.js";
+import { userPublicSchema } from "../user/user.model.js";
 
 export const gameScoreSchema = z.object({
   id: z.uuid(),

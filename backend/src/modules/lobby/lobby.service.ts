@@ -1,10 +1,10 @@
-import { BaseService } from "../../shared/base/index.ts";
-import { ValidationError, NotFoundError, ForbiddenError } from "../../shared/errors.ts";
-import { newLobbySchema, lobbySchema } from "./lobby.model.ts";
-import type { Lobby, NewLobby } from "./lobby.model.ts";
-import { LobbyRepository, type LobbyUpdateData } from "./lobby.repository.ts";
-import { emitLobbyClosed, emitLobbyUpdate } from "./lobby.realtime.ts";
-import { GameRepository } from "../game/game.repository.ts";
+import { BaseService } from "../../shared/base/index.js";
+import { ValidationError, NotFoundError, ForbiddenError } from "../../shared/errors.js";
+import { newLobbySchema, lobbySchema } from "./lobby.model.js";
+import type { Lobby, NewLobby } from "./lobby.model.js";
+import { LobbyRepository, type LobbyUpdateData } from "./lobby.repository.js";
+import { emitLobbyClosed, emitLobbyUpdate } from "./lobby.realtime.js";
+import { GameRepository } from "../game/game.repository.js";
 
 export class LobbyService extends BaseService {
   private repo: LobbyRepository;

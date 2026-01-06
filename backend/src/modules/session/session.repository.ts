@@ -1,6 +1,6 @@
-import { BaseRepository } from "../../shared/base/index.ts";
-import { NotFoundError } from "../../shared/errors.ts";
-import type { Session } from "./session.model.ts";
+import { BaseRepository } from "../../shared/base/index.js";
+import { NotFoundError } from "../../shared/errors.js";
+import type { Session } from "./session.model.js";
 
 export class SessionRepository extends BaseRepository {
   async create(data: { userId: string; expiresAt: Date }): Promise<Session> {

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { BaseController } from "../../shared/base/index.ts";
-import { LoginService } from "./login.service.ts";
-import { config } from "../../shared/config.ts";
+import { BaseController } from "../../shared/base/index.js";
+import { LoginService } from "./login.service.js";
+import { config } from "../../shared/config.js";
 
 export class LoginController extends BaseController {
   private loginService: LoginService;

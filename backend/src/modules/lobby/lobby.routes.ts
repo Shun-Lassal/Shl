@@ -1,6 +1,6 @@
 import express from "express";
-import { LobbyController } from "./lobby.controller.ts";
-import { isAdminMiddleware, isLoggedInMiddleware } from "../../middlewares/auth.ts";
+import { LobbyController } from "./lobby.controller.js";
+import { isAdminMiddleware, isLoggedInMiddleware } from "../../middlewares/auth.js";
 
 const router = express.Router();
 

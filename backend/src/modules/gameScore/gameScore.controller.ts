@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { BaseController } from "../../shared/base/index.ts";
-import { GameScoreService } from "./gameScore.service.ts";
-import type { GameScoreWithRelations } from "./gameScore.model.ts";
+import { BaseController } from "../../shared/base/index.js";
+import { GameScoreService } from "./gameScore.service.js";
+import type { GameScoreWithRelations } from "./gameScore.model.js";
 
 export class GameScoreController extends BaseController {
   private gameScoreService: GameScoreService;

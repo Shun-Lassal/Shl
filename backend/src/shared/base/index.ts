@@ -1,3 +1,3 @@
-export { BaseController } from './BaseController.ts';
-export { BaseService } from './BaseService.ts';
-export { BaseRepository } from './BaseRepository.ts';
+export { BaseController } from './BaseController.js';
+export { BaseService } from './BaseService.js';
+export { BaseRepository } from './BaseRepository.js';

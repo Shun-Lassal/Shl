@@ -1,6 +1,6 @@
-import { BaseRepository } from "../../shared/base/index.ts";
-import { NotFoundError } from "../../shared/errors.ts";
-import type { User } from "../user/user.model.ts";
+import { BaseRepository } from "../../shared/base/index.js";
+import { NotFoundError } from "../../shared/errors.js";
+import type { User } from "../user/user.model.js";
 
 export class LoginRepository extends BaseRepository {
   async getUserByEmail(email: string): Promise<User> {

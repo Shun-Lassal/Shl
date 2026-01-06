@@ -1,7 +1,7 @@
 import type { Server, Socket } from "socket.io";
-import { GameService } from "./game.service.ts";
-import { gameActionSchema, startGameSchema } from "./game.model.ts";
-import { emitGameUpdate, gameRoomName } from "./game.realtime.ts";
+import { GameService } from "./game.service.js";
+import { gameActionSchema, startGameSchema } from "./game.model.js";
+import { emitGameUpdate, gameRoomName } from "./game.realtime.js";
 import { z } from "zod";
 
 const joinGameSchema = z.object({ gameId: z.string().uuid() });

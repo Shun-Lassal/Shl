@@ -1,11 +1,11 @@
-import { BaseService } from "../../shared/base/index.ts";
-import { ConflictError, ValidationError } from "../../shared/errors.ts";
-import { registerSchema } from "./register.model.ts";
-import type { Register } from "./register.model.ts";
-import { hashPassword } from "../../shared/bcrypt.ts";
-import { UserRepository } from "../user/user.repository.ts";
-import { RegisterRepository } from "./register.repository.ts";
-import { SessionService } from "../session/session.service.ts";
+import { BaseService } from "../../shared/base/index.js";
+import { ConflictError, ValidationError } from "../../shared/errors.js";
+import { registerSchema } from "./register.model.js";
+import type { Register } from "./register.model.js";
+import { hashPassword } from "../../shared/bcrypt.js";
+import { UserRepository } from "../user/user.repository.js";
+import { RegisterRepository } from "./register.repository.js";
+import { SessionService } from "../session/session.service.js";
 
 export class RegisterService extends BaseService {
   private userRepo: UserRepository;

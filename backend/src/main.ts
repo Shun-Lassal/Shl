@@ -4,14 +4,14 @@ import express, { type RequestHandler } from "express";
 import helmet, { type HelmetOptions } from "helmet";
 import { createServer } from "node:http";
 import { Server as SocketIOServer } from "socket.io";
-import { registerLobbySocketHandlers } from "./modules/lobby/lobby.socket.ts";
-import { seedDefaultUser } from "./shared/seedDefaultUser.ts";
-import sharedRoutes from "./shared/routes.ts";
-import { initLobbyRealtime } from "./modules/lobby/lobby.realtime.ts";
-import { initGameRealtime } from "./modules/game/game.realtime.ts";
-import { registerGameSocketHandlers } from "./modules/game/game.socket.ts";
-import { config } from "./shared/config.ts";
-import { apiLimiter } from "./shared/rateLimit.ts";
+import { registerLobbySocketHandlers } from "./modules/lobby/lobby.socket.js";
+import { seedDefaultUser } from "./shared/seedDefaultUser.js";
+import sharedRoutes from "./shared/routes.js";
+import { initLobbyRealtime } from "./modules/lobby/lobby.realtime.js";
+import { initGameRealtime } from "./modules/game/game.realtime.js";
+import { registerGameSocketHandlers } from "./modules/game/game.socket.js";
+import { config } from "./shared/config.js";
+import { apiLimiter } from "./shared/rateLimit.js";
 const app = express();
 
 if (config.seedDefaultUser) {

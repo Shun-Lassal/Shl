@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Server as SocketIOServer } from "socket.io";
-import type { Lobby } from "./lobby.model.ts";
+import type { Lobby } from "./lobby.model.js";
 
 export type LobbyChatMessage = {
   id: string;

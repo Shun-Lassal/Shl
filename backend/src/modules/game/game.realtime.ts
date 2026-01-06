@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Server as SocketIOServer } from "socket.io";
-import type { Game } from "./game.model.ts";
-import type { Card } from "./game.model.ts";
+import type { Game } from "./game.model.js";
+import type { Card } from "./game.model.js";
 
 let io: SocketIOServer | null = null;
 

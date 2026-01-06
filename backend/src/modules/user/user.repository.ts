@@ -1,6 +1,6 @@
-import { BaseRepository } from "../../shared/base/index.ts";
-import { selectWithoutPassword } from "../../shared/fieldSelectors.ts";
-import type { NewUser, User } from "./user.model.ts";
+import { BaseRepository } from "../../shared/base/index.js";
+import { selectWithoutPassword } from "../../shared/fieldSelectors.js";
+import type { NewUser, User } from "./user.model.js";
 
 export class UserRepository extends BaseRepository {
   async findAll(options?: { skip?: number; take?: number }): Promise<User[]> {

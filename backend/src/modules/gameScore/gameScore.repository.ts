@@ -1,6 +1,6 @@
-import { BaseRepository } from "../../shared/base/index.ts";
-import { NotFoundError } from "../../shared/errors.ts";
-import type { GameScore, GameScoreWithRelations, NewGameScore } from "./gameScore.model.ts";
+import { BaseRepository } from "../../shared/base/index.js";
+import { NotFoundError } from "../../shared/errors.js";
+import type { GameScore, GameScoreWithRelations, NewGameScore } from "./gameScore.model.js";
 
 const defaultInclude = {
   user: {

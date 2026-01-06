@@ -1,6 +1,6 @@
 import express from "express";
-import { SessionController } from "./session.controller.ts";
-import { isLoggedInMiddleware } from "../../middlewares/auth.ts";
+import { SessionController } from "./session.controller.js";
+import { isLoggedInMiddleware } from "../../middlewares/auth.js";
 
 const router = express.Router();
 

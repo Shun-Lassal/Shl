@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { BaseController } from "../../shared/base/index.ts";
-import { UnauthorizedError } from "../../shared/errors.ts";
-import { LobbyService } from "./lobby.service.ts";
-import type { Lobby } from "./lobby.model.ts";
-import type { LobbyUpdateData } from "./lobby.repository.ts";
+import { BaseController } from "../../shared/base/index.js";
+import { UnauthorizedError } from "../../shared/errors.js";
+import { LobbyService } from "./lobby.service.js";
+import type { Lobby } from "./lobby.model.js";
+import type { LobbyUpdateData } from "./lobby.repository.js";
 
 export class LobbyController extends BaseController {
   private lobbyService: LobbyService;

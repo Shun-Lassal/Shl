@@ -1,6 +1,6 @@
-import { BaseRepository } from "../../shared/base/index.ts";
-import { NotFoundError } from "../../shared/errors.ts";
-import type { Game, PlayerState, EnemyState } from "./game.model.ts";
+import { BaseRepository } from "../../shared/base/index.js";
+import { NotFoundError } from "../../shared/errors.js";
+import type { Game, PlayerState, EnemyState } from "./game.model.js";
 import { GamePhase } from "@prisma/client";
 
 export class GameRepository extends BaseRepository {

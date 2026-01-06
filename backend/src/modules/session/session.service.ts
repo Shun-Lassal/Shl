@@ -1,8 +1,8 @@
-import { BaseService } from "../../shared/base/index.ts";
-import { ValidationError, NotFoundError } from "../../shared/errors.ts";
-import { sessionSchema } from "./session.model.ts";
-import type { Session } from "./session.model.ts";
-import { SessionRepository } from "./session.repository.ts";
+import { BaseService } from "../../shared/base/index.js";
+import { ValidationError, NotFoundError } from "../../shared/errors.js";
+import { sessionSchema } from "./session.model.js";
+import type { Session } from "./session.model.js";
+import { SessionRepository } from "./session.repository.js";
 
 export class SessionService extends BaseService {
   private repository: SessionRepository;

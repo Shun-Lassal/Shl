@@ -1,6 +1,6 @@
 import express from "express";
-import { isLoggedInMiddleware } from "../../middlewares/auth.ts";
-import { GameController } from "./game.controller.ts";
+import { isLoggedInMiddleware } from "../../middlewares/auth.js";
+import { GameController } from "./game.controller.js";
 
 const router = express.Router();
 

@@ -1,4 +1,4 @@
-import type { EnemyState, EnemyIntent } from "./game.model.ts";
+import type { EnemyState, EnemyIntent } from "./game.model.js";
 
 const ENEMY_TYPES = {
   GOBLIN: { baseHp: 20, baseDamage: 3 },

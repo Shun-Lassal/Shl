@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { BaseController } from "../../shared/base/index.ts";
-import { UserService } from "./user.service.ts";
+import { BaseController } from "../../shared/base/index.js";
+import { UserService } from "./user.service.js";
 
 export class UserController extends BaseController {
   private userService: UserService;

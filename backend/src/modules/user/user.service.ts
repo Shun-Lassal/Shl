@@ -1,9 +1,9 @@
-import { BaseService } from "../../shared/base/index.ts";
-import { ValidationError, NotFoundError } from "../../shared/errors.ts";
-import { UserRepository } from "./user.repository.ts";
-import { userSchema, newUserSchema } from "./user.model.ts";
-import type { User } from "./user.model.ts";
-import { comparePasswords } from "../../shared/bcrypt.ts";
+import { BaseService } from "../../shared/base/index.js";
+import { ValidationError, NotFoundError } from "../../shared/errors.js";
+import { UserRepository } from "./user.repository.js";
+import { userSchema, newUserSchema } from "./user.model.js";
+import type { User } from "./user.model.js";
+import { comparePasswords } from "../../shared/bcrypt.js";
 
 export class UserService extends BaseService {
   private repo: UserRepository;

@@ -3,8 +3,8 @@
  */
 
 import { Request, Response } from 'express';
-import { AppError, isAppError } from '../errors.ts';
-import { ResponseFormatter } from '../response.ts';
+import { AppError, isAppError } from '../errors.js';
+import { ResponseFormatter } from '../response.js';
 
 export abstract class BaseController {
   private createErrorId(): string {

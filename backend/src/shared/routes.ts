@@ -1,19 +1,19 @@
 import express from "express";
-import userRoutes from "../modules/user/user.routes.ts";
-import sessionRoutes from "../modules/session/session.routes.ts";
-import registerRoutes from "../modules/register/register.routes.ts";
-import loginRoutes from "../modules/login/login.routes.ts";
-import gameScoreRoutes from "../modules/gameScore/gameScore.routes.ts";
-import lobbyRoutes from "../modules/lobby/lobby.routes.ts";
-import gameRoutes from "../modules/game/game.routes.ts";
-import swaggerUi from "swagger-ui-express";
-import { swaggerSpec } from "./swagger.ts";
-import { authLimiter } from "./rateLimit.ts";
-import { config } from "./config.ts";
+import userRoutes from "../modules/user/user.routes;
+import sessionRoutes from .js"../modules/session/session.routes;
+import registerRoutes from "../modules/register/register.routes;
+import loginRoutes from .js"../modules/login/login.routes;
+import gameScoreRoutes from "../modules/gameScore/gameScore.routes;
+import lobbyRoutes from .js"../modules/lobby/lobby.routes;
+import gameRoutes from "../modules/game/game.routes;
+import swaggerUi from .js"swagger-ui-express";
+import { swaggerSpec } from "./swagger;
+import { authLimiter } from .js"./rateLimit;
+import { config } from "./config;
 
 const router = express.Router();
 
-router.use("/users", userRoutes);
+router.use(.js"/users", userRoutes);
 router.use("/sessions", sessionRoutes);
 router.use("/register", authLimiter, registerRoutes);
 router.use("/login", authLimiter, loginRoutes);

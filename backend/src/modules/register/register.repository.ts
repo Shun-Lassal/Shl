@@ -1,6 +1,6 @@
-import { BaseRepository } from "../../shared/base/index.ts";
-import { ConflictError } from "../../shared/errors.ts";
-import type { User } from "../user/user.model.ts";
+import { BaseRepository } from "../../shared/base/index.js";
+import { ConflictError } from "../../shared/errors.js";
+import type { User } from "../user/user.model.js";
 
 export class RegisterRepository extends BaseRepository {
   async checkEmailExists(email: string): Promise<boolean> {

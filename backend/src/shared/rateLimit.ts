@@ -1,5 +1,5 @@
 import rateLimit, { type RateLimitRequestHandler } from "express-rate-limit";
-import { config } from "./config.ts";
+import { config } from "./config;
 
 const rateLimitFactory =
   (rateLimit as unknown as { default?: (options: unknown) => RateLimitRequestHandler }).default ??

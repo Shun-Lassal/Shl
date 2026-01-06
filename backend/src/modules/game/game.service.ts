@@ -1,15 +1,15 @@
-import { BaseService } from "../../shared/base/index.ts";
-import { ValidationError, NotFoundError, ForbiddenError } from "../../shared/errors.ts";
-import { GameRepository } from "./game.repository.ts";
-import { LobbyRepository } from "../lobby/lobby.repository.ts";
-import type { Game, PlayerState, EnemyState, GameAction, Card } from "./game.model.ts";
+import { BaseService } from "../../shared/base/index.js";
+import { ValidationError, NotFoundError, ForbiddenError } from "../../shared/errors.js";
+import { GameRepository } from "./game.repository.js";
+import { LobbyRepository } from "../lobby/lobby.repository.js";
+import type { Game, PlayerState, EnemyState, GameAction, Card } from "./game.model.js";
 import { GamePhase } from "@prisma/client";
-import { createStarterDeck, shuffleDeck, drawCards, reshuffleDiscard } from "./cardDeck.service.ts";
-import { generateEnemy, executeEnemyTurn, type EnemyType } from "./aiEngine.service.ts";
-import { emitGameUpdate, emitGamePhaseChange, emitGameOver, emitGamePlanning, emitGameReward } from "./game.realtime.ts";
-import { emitLobbyUpdate } from "../lobby/lobby.realtime.ts";
+import { createStarterDeck, shuffleDeck, drawCards, reshuffleDiscard } from "./cardDeck.service.js";
+import { generateEnemy, executeEnemyTurn, type EnemyType } from "./aiEngine.service.js";
+import { emitGameUpdate, emitGamePhaseChange, emitGameOver, emitGamePlanning, emitGameReward } from "./game.realtime.js";
+import { emitLobbyUpdate } from "../lobby/lobby.realtime.js";
 import { randomUUID } from "node:crypto";
-import { GameScoreService } from "../gameScore/gameScore.service.ts";
+import { GameScoreService } from "../gameScore/gameScore.service.js";
 
 type PlannedAction = GameAction["action"];
 type PlanningState = {

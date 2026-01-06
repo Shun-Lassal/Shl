@@ -1,6 +1,6 @@
-import { BaseRepository } from "../../shared/base/index.ts";
-import { NotFoundError, ValidationError } from "../../shared/errors.ts";
-import type { Lobby, NewLobby } from "./lobby.model.ts";
+import { BaseRepository } from "../../shared/base/index.js";
+import { NotFoundError, ValidationError } from "../../shared/errors.js";
+import type { Lobby, NewLobby } from "./lobby.model.js";
 
 export type LobbyUpdateData = {
   status?: Lobby["status"];

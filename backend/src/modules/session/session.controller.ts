@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { BaseController } from "../../shared/base/index.ts";
-import { SessionService } from "./session.service.ts";
-import { UnauthorizedError } from "../../shared/errors.ts";
-import { UserService } from "../user/user.service.ts";
+import { BaseController } from "../../shared/base/index.js";
+import { SessionService } from "./session.service.js";
+import { UnauthorizedError } from "../../shared/errors.js";
+import { UserService } from "../user/user.service.js";
 
 export class SessionController extends BaseController {
   private sessionService: SessionService;

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { BaseController } from "../../shared/base/index.ts";
-import { GameService } from "./game.service.ts";
+import { BaseController } from "../../shared/base/index.js";
+import { GameService } from "./game.service.js";
 
 export class GameController extends BaseController {
   private gameService: GameService;

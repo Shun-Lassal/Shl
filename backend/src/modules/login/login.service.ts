@@ -1,10 +1,10 @@
-import { BaseService } from "../../shared/base/index.ts";
-import { ValidationError } from "../../shared/errors.ts";
-import { loginSchema } from "./login.model.ts";
-import type { Login } from "./login.model.ts";
-import { comparePasswords } from "../../shared/bcrypt.ts";
-import { UserRepository } from "../user/user.repository.ts";
-import { SessionService } from "../session/session.service.ts";
+import { BaseService } from "../../shared/base/index.js";
+import { ValidationError } from "../../shared/errors.js";
+import { loginSchema } from "./login.model.js";
+import type { Login } from "./login.model.js";
+import { comparePasswords } from "../../shared/bcrypt.js";
+import { UserRepository } from "../user/user.repository.js";
+import { SessionService } from "../session/session.service.js";
 
 export class LoginService extends BaseService {
   private userRepo: UserRepository;

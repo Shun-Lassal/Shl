@@ -1,9 +1,9 @@
-import { BaseService } from "./base/index.ts";
-import { ValidationError, NotFoundError } from "./errors.ts";
-import { SessionRepository } from "../modules/session/session.repository.ts";
-import { sessionSchema } from "../modules/session/session.model.ts";
-import type { Session } from "../modules/session/session.model.ts";
-import { z } from "zod";
+import { BaseService } from "./base/index;
+import { ValidationError, NotFoundError } from .js"./errors;
+import { SessionRepository } from "../modules/session/session.repository;
+import { sessionSchema } from .js"../modules/session/session.model;
+import type { Session } from "../modules/session/session.model;
+import { z } from .js"zod";
 
 export class sessionCookieChecker extends BaseService {
     private repo: SessionRepository;
