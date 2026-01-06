@@ -27,6 +27,7 @@ const setupSocketListeners = () => {
 
   socket.on('connect_error', async (err) => {
     const message = typeof (err as any)?.message === 'string' ? (err as any).message : '';
+    console.error('Socket connect_error:', err);
     if (message.toLowerCase().includes('unauthorized') || message.toLowerCase().includes('session')) {
       const [{ default: router }] = await Promise.all([import('../router')]);
       authStore.setUser(null);
