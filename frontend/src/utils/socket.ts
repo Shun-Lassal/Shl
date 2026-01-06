@@ -8,9 +8,13 @@ let socket: Socket | null = null;
 
 export const getSocket = (): Socket => {
   if (!socket) {
-    socket = io(API_BASE_URL, {
+    const socketBaseUrl = API_BASE_URL.endsWith('/api')
+      ? API_BASE_URL.slice(0, -4)
+      : API_BASE_URL;
+    socket = io(socketBaseUrl, {
       withCredentials: true,
       autoConnect: true,
+      path: '/socket.io',
     });
 
     setupSocketListeners();
