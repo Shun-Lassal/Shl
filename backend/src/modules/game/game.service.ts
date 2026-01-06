@@ -244,7 +244,7 @@ export class GameService extends BaseService {
       const allEnemiesDead = updated.enemies.every((e) => e.hp <= 0);
       const allPlayersDead = updated.players.every((p) => !p.isAlive);
       if (allEnemiesDead) {
-        const MAX_FLOOR = 10;
+        const MAX_FLOOR = 50;
         if (updated.currentFloor >= MAX_FLOOR) {
           await this.transitionToGameOver(updated, true);
         } else {

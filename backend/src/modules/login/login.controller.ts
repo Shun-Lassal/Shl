@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { BaseController } from "../../shared/base/index.ts";
 import { LoginService } from "./login.service.ts";
+import { config } from "../../shared/config.ts";
 
 export class LoginController extends BaseController {
   private loginService: LoginService;
@@ -19,9 +20,9 @@ export class LoginController extends BaseController {
         .status(200)
         .cookie("sid", result.sessionId, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
+          secure: config.isProd,
           sameSite: "strict",
-          maxAge: 1000 * 60 * 60 * 24,
+          maxAge: 1000 * 60 * 60 * 24 * 30,
           signed: true,
         });
 
@@ -36,7 +37,7 @@ export class LoginController extends BaseController {
 
       res.clearCookie("sid", {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: config.isProd,
         sameSite: "strict",
         path: "/",
       });

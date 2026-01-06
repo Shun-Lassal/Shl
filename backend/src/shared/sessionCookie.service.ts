@@ -46,7 +46,7 @@ export class sessionCookieChecker extends BaseService {
             return false;
         }
 
-        const EXTEND_MS = 15 * 60 * 1000; // 15 minutes
+        const EXTEND_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
         const remainingMs = expiresTs - currDate;
 
         // Extend session if less than 5 minutes remaining

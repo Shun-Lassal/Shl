@@ -19,15 +19,27 @@ Copiez le fichier `.env` d'exemple si besoin et ajustez les valeurs :
 ```
 DATABASE_URL=postgresql://user:password@host:5432/database?schema=public
 COOKIE_SECRET=votre_secret
+JWT_SECRET=votre_secret_jwt
 NODE_ENV=development
 HOST=0.0.0.0
 PORT=3000
 CORS_ORIGIN=
+ENABLE_SWAGGER=true
+SEED_DEFAULT_USER=true
+DEFAULT_USER_EMAIL=admin@admin.com
+DEFAULT_USER_NAME=admin
+DEFAULT_USER_PASSWORD=admin123456
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=200
+RATE_LIMIT_AUTH_WINDOW_MS=900000
+RATE_LIMIT_AUTH_MAX=20
 ```
 
-`CORS_ORIGIN` accepte une liste séparée par des virgules si plusieurs frontends doivent accéder à l'API. Laissez la valeur vide en développement : l'API reflétera automatiquement toute origine provenant de votre réseau local, ce qui permet de tester depuis d'autres machines. En production, renseignez explicitement les URL autorisées.
+`CORS_ORIGIN` accepte une liste séparée par des virgules si plusieurs frontends doivent accéder à l'API. Laissez la valeur vide en développement : l'API reflétera automatiquement toute origine provenant de votre réseau local, ce qui permet de tester depuis d'autres machines. En production, renseignez explicitement les URL autorisées (obligatoire).
 
 `HOST`/`PORT` contrôlent l'interface d'écoute d'Express. `HOST=0.0.0.0` est nécessaire pour rendre l'API joignable depuis un autre périphérique.
+
+En production, `COOKIE_SECRET` et `JWT_SECRET` doivent être définis avec au moins 32 caractères. `ENABLE_SWAGGER` active ou désactive `/docs`. `SEED_DEFAULT_USER` permet d'initialiser un compte admin (désactivé par défaut en production).
 
 ## Commandes utiles
 - `npm run dev` : lance le serveur en mode développement avec `ts-node` et rechargement via Nodemon.

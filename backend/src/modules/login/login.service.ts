@@ -37,7 +37,7 @@ export class LoginService extends BaseService {
     }
 
     // Create session
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
     const sessionId = await this.sessionService.createSession(user.id!, expiresAt);
 
     // Return user without password

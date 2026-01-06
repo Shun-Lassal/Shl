@@ -26,7 +26,7 @@
       </UiCard>
       <UiCard padding="sm">
         <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Progression</div>
-        <div class="mt-2 text-3xl font-black text-white">Étage {{ stats.maxFloor }}</div>
+        <div class="mt-2 text-3xl font-black text-white">Étage {{ stats.maxFloor }} MAX</div>
       </UiCard>
     </div>
 
@@ -84,6 +84,6 @@ onMounted(async () => {
   
   stats.value.lobbyCount = lobbyStore.lobbies.length;
   stats.value.playerCount = lobbyStore.lobbies.reduce((sum, l) => sum + (l.players?.length || 0), 0);
-  stats.value.maxFloor = 10;
+  stats.value.maxFloor = 50;
 });
 </script>

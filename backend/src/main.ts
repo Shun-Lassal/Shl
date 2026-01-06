@@ -1,6 +1,7 @@
 import cors, { type CorsOptions } from "cors";
 import cookieParser from "cookie-parser";
-import express from "express";
+import express, { type RequestHandler } from "express";
+import helmet, { type HelmetOptions } from "helmet";
 import { createServer } from "node:http";
 import { Server as SocketIOServer } from "socket.io";
 import { registerLobbySocketHandlers } from "./modules/lobby/lobby.socket.ts";
@@ -9,29 +10,28 @@ import sharedRoutes from "./shared/routes.ts";
 import { initLobbyRealtime } from "./modules/lobby/lobby.realtime.ts";
 import { initGameRealtime } from "./modules/game/game.realtime.ts";
 import { registerGameSocketHandlers } from "./modules/game/game.socket.ts";
-
-seedDefaultUser();
+import { config } from "./shared/config.ts";
+import { apiLimiter } from "./shared/rateLimit.ts";
 const app = express();
 
-const parseOrigins = (value?: string): string[] =>
-  (value ?? "")
-    .split(",")
-    .map((origin) => origin.trim())
-    .filter((origin) => origin.length > 0);
+if (config.seedDefaultUser) {
+  await seedDefaultUser();
+}
 
-const explicitOrigins = parseOrigins(process.env.CORS_ORIGIN);
-const defaultOrigins = ["http://localhost:5173"];
-const allowAnyOrigin =
-  explicitOrigins.length === 0 && process.env.NODE_ENV !== "production";
-
-const corsOptions: CorsOptions = allowAnyOrigin
+const corsOptions: CorsOptions = config.allowAnyOrigin
   ? { origin: true, credentials: true }
-  : { origin: explicitOrigins.length ? explicitOrigins : defaultOrigins, credentials: true };
-const cookieSecret = process.env.COOKIE_SECRET ?? "Alleluia";
+  : { origin: config.corsOrigins, credentials: true };
 
-app.use(cookieParser(cookieSecret));
+app.set("trust proxy", config.trustProxy);
+app.disable("x-powered-by");
+const helmetFactory =
+  (helmet as unknown as { default?: (options?: HelmetOptions) => RequestHandler }).default ??
+  (helmet as unknown as (options?: HelmetOptions) => RequestHandler);
+app.use(helmetFactory({ contentSecurityPolicy: false }));
+app.use(cookieParser(config.cookieSecret));
 app.use(cors(corsOptions));
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
+app.use(apiLimiter);
 
 // Shared Routes
 app.use("/", sharedRoutes);
@@ -40,9 +40,11 @@ app.get("/", (req, res) => {
   res.status(200).json({ message: "Salut je suis démarré" });
 });
 
-app.get("/merde", (req, res) => {
-  res.json({ message: "🚀 Backend Express + TS + Prisma est prêt !" });
-});
+if (!config.isProd) {
+  app.get("/merde", (req, res) => {
+    res.json({ message: "🚀 Backend Express + TS + Prisma est prêt !" });
+  });
+}
 
 const httpServer = createServer(app);
 const io = new SocketIOServer(httpServer, {
@@ -51,14 +53,14 @@ const io = new SocketIOServer(httpServer, {
 
 // Initialise lobby real-time features
 initLobbyRealtime(io);
-registerLobbySocketHandlers(io, { cookieSecret });
+registerLobbySocketHandlers(io, { cookieSecret: config.cookieSecret });
 
 // Initialise game real-time features
 initGameRealtime(io);
 registerGameSocketHandlers(io);
 
-const port = Number(process.env.PORT ?? 3000);
-const host = process.env.HOST ?? "0.0.0.0";
+const port = config.port;
+const host = config.host;
 
 httpServer.listen(port, host, () => {
   const displayHost = host === "0.0.0.0" ? "localhost" : host;

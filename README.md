@@ -106,6 +106,13 @@ docker-compose down -v
 
 Want teammates on the same network (e.g. `172.20.0.5`) to try the app without extra config? Run `docker-compose up` normally, then share `http://<your-ip>:5173`. The frontend now points to the backend running on the same host automatically, and the backend (when `CORS_ORIGIN` is empty and `NODE_ENV=development`) accepts requests from any origin on your LAN. For stricter setups, explicitly set `VITE_API_URL` (frontend) and `CORS_ORIGIN` (backend) to the domains you expect.
 
+## 🔐 Production Security Notes
+
+- Set strong secrets (`COOKIE_SECRET`, `JWT_SECRET`) and explicit `CORS_ORIGIN` values.
+- Disable default admin seeding (`SEED_DEFAULT_USER=false`) once you create real accounts.
+- Keep Swagger private or disabled in production (`ENABLE_SWAGGER=false`).
+- Start pgAdmin only when needed with `docker compose --profile tools up` (see `docker-compose.yml`).
+
 ## 🔧 Development Setup (Without Docker)
 
 If you prefer to run services locally without Docker:

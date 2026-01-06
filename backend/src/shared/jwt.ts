@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
+import { config } from "./config.ts";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-default-secret";
+const JWT_SECRET = config.jwtSecret;
 const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN ?? "15m") as jwt.SignOptions["expiresIn"];
 
 export interface JwtPayload {

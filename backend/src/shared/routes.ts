@@ -8,15 +8,19 @@ import lobbyRoutes from "../modules/lobby/lobby.routes.ts";
 import gameRoutes from "../modules/game/game.routes.ts";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger.ts";
+import { authLimiter } from "./rateLimit.ts";
+import { config } from "./config.ts";
 
 const router = express.Router();
 
 router.use("/users", userRoutes);
 router.use("/sessions", sessionRoutes);
-router.use("/register", registerRoutes);
-router.use("/login", loginRoutes);
+router.use("/register", authLimiter, registerRoutes);
+router.use("/login", authLimiter, loginRoutes);
 router.use("/game-scores", gameScoreRoutes);
 router.use("/lobbies", lobbyRoutes);
 router.use("/games", gameRoutes);
-router.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+if (config.enableSwagger) {
+  router.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+}
 export default router;

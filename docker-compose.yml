@@ -25,12 +25,23 @@ services:
       - ./backend:/app
       - /app/node_modules
     environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://dev:dev@db:5432/shl
-      - PORT=3000
-      - HOST=0.0.0.0
-      - CORS_ORIGIN=
-      - CHOKIDAR_USEPOLLING=true
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://dev:dev@db:5432/shl}
+      PORT: ${PORT:-3000}
+      HOST: ${HOST:-0.0.0.0}
+      CORS_ORIGIN: ${CORS_ORIGIN:-}
+      COOKIE_SECRET: ${COOKIE_SECRET:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      ENABLE_SWAGGER: ${ENABLE_SWAGGER:-}
+      SEED_DEFAULT_USER: ${SEED_DEFAULT_USER:-}
+      DEFAULT_USER_EMAIL: ${DEFAULT_USER_EMAIL:-}
+      DEFAULT_USER_NAME: ${DEFAULT_USER_NAME:-}
+      DEFAULT_USER_PASSWORD: ${DEFAULT_USER_PASSWORD:-}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-900000}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-200}
+      RATE_LIMIT_AUTH_WINDOW_MS: ${RATE_LIMIT_AUTH_WINDOW_MS:-900000}
+      RATE_LIMIT_AUTH_MAX: ${RATE_LIMIT_AUTH_MAX:-20}
+      CHOKIDAR_USEPOLLING: "true"
     command: ["sh", "-c", "npm run prisma:sync && npm run dev"]
     depends_on:
       db:
@@ -40,9 +51,9 @@ services:
     image: postgres:15
     restart: always
     environment:
-      POSTGRES_USER: dev
-      POSTGRES_PASSWORD: dev
-      POSTGRES_DB: shl
+      POSTGRES_USER: ${POSTGRES_USER:-dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev}
+      POSTGRES_DB: ${POSTGRES_DB:-shl}
     ports:
       - "5432:5432"
     volumes:
@@ -56,9 +67,11 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     restart: always
+    profiles:
+      - tools
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
     ports:
       - "8080:80"
     depends_on:
