@@ -4,7 +4,11 @@ const resolveDefaultApiUrl = (): string => {
   }
   const protocol = window.location.protocol || 'http:';
   const hostname = window.location.hostname || 'localhost';
-  return `${protocol}//${hostname}:3000`;
+  const port = window.location.port;
+  if (port === '5173') {
+    return `${protocol}//${hostname}:3000`;
+  }
+  return `${protocol}//${hostname}/api`;
 };
 
 const envApiUrl = (import.meta.env.VITE_API_URL || '').trim();
