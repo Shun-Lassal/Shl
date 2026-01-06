@@ -12,7 +12,7 @@ RUN npm ci --silent
 COPY src ./src
 
 RUN npm run prisma:generate
-RUN npm run build
+RUN npx tsc -p tsconfig.build.json
 
 FROM node:20-slim
 WORKDIR /app
