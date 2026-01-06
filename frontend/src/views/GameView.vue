@@ -249,6 +249,7 @@ const orderedPlayers = computed<PlayerState[]>(() => {
   const myIndex = sorted.findIndex(p => p.userId === meId);
   if (myIndex <= 0) return sorted;
   const [me] = sorted.splice(myIndex, 1);
+  if (!me) return sorted;
   return [me, ...sorted];
 });
 
