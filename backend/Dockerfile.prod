@@ -3,6 +3,7 @@ WORKDIR /app
 
 COPY package*.json ./
 COPY tsconfig.json ./
+COPY tsconfig.build.json ./
 COPY prisma ./prisma
 
 ARG DATABASE_URL=postgresql://dev:dev@db:5432/shl?schema=public
