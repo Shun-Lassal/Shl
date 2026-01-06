@@ -1,7 +1,7 @@
-import { RegisterService } from "../modules/register/register.service;
-import { UserRepository } from .js"../modules/user/user.repository;
+import { RegisterService } from "../modules/register/register.service.js";
+import { UserRepository } from "../modules/user/user.repository.js";
 import { Role } from "@prisma/client";
-import { config } from "./config;
+import { config } from "./config.js";
 
 const userRepository = new UserRepository();
 
@@ -20,6 +20,6 @@ export async function seedDefaultUser() {
       console.log(`[seed] Utilisateur par défaut créé: ${email}`);
     }
   } catch (e) {
-    console.error(.js"Error Seeding default user :", e);
+    console.error("Error Seeding default user :", e);
   }
 }

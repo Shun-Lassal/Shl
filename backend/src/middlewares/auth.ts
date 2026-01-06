@@ -1,9 +1,9 @@
 import type { Request, Response, NextFunction } from "express";
-import { sessionCookieChecker } from "../shared/sessionCookie.service;
-import { SessionService } from .js"../modules/session/session.service;
-import type { User } from "../modules/user/user.model;
-import { UserService } from .js"../modules/user/user.service;
-import type { Session } from "../modules/session/session.model;
+import { sessionCookieChecker } from "../shared/sessionCookie.service.js";
+import { SessionService } from "../modules/session/session.service.js";
+import type { User } from "../modules/user/user.model.js";
+import { UserService } from "../modules/user/user.service.js";
+import type { Session } from "../modules/session/session.model.js";
 
 // Je pense que le mieux serait de tout check dans un Service et non dans le controlleur middleware auth
 // Ou est-ce déjà le mieux que je puisse faire ?

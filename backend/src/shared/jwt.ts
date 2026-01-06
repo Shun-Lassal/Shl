@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
-import { config } from "./config;
+import { config } from "./config.js";
 
 const JWT_SECRET = config.jwtSecret;
-const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN ?? .js"15m") as jwt.SignOptions["expiresIn"];
+const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN ?? "15m") as jwt.SignOptions["expiresIn"];
 
 export interface JwtPayload {
   userId: string;
