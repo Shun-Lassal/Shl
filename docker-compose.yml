@@ -3,6 +3,8 @@ services:
   frontend:
     build:
       context: ./frontend
+    env_file:
+      - .env
     ports:
       - "5001:5173"
     volumes:
@@ -19,28 +21,14 @@ services:
   backend:
     build:
       context: ./backend
+    env_file:
+      - .env
     ports:
       - "3002:3000"
     volumes:
       - ./backend:/app
       - /app/node_modules
     environment:
-      NODE_ENV: ${NODE_ENV:-development}
-      DATABASE_URL: ${DATABASE_URL:-postgresql://dev:dev@db:5432/shl}
-      PORT: ${PORT:-3000}
-      HOST: ${HOST:-0.0.0.0}
-      CORS_ORIGIN: ${CORS_ORIGIN:-}
-      COOKIE_SECRET: ${COOKIE_SECRET:-}
-      JWT_SECRET: ${JWT_SECRET:-}
-      ENABLE_SWAGGER: ${ENABLE_SWAGGER:-}
-      SEED_DEFAULT_USER: ${SEED_DEFAULT_USER:-}
-      DEFAULT_USER_EMAIL: ${DEFAULT_USER_EMAIL:-}
-      DEFAULT_USER_NAME: ${DEFAULT_USER_NAME:-}
-      DEFAULT_USER_PASSWORD: ${DEFAULT_USER_PASSWORD:-}
-      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-900000}
-      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-200}
-      RATE_LIMIT_AUTH_WINDOW_MS: ${RATE_LIMIT_AUTH_WINDOW_MS:-900000}
-      RATE_LIMIT_AUTH_MAX: ${RATE_LIMIT_AUTH_MAX:-20}
       CHOKIDAR_USEPOLLING: "true"
     command: ["sh", "-c", "npm run prisma:sync && npm run dev"]
     depends_on:
@@ -50,10 +38,12 @@ services:
   db:
     image: postgres:15
     restart: always
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-dev}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev}
-      POSTGRES_DB: ${POSTGRES_DB:-shl}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5433:5432"
     volumes:
