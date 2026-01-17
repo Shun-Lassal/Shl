@@ -1,17 +1,10 @@
-# Shl — Full-Stack User Authentication System
+# Shl —
 
-A modern full-stack web application built with **Vue 3**, **Express**, **TypeScript**, and **PostgreSQL**. This project provides a complete user authentication system with session management, role-based access control, and a responsive frontend interface.
+A modern full-stack web application built with **Vue 3**, **Express**, **TypeScript**, and **PostgreSQL**. 
 
 ## 🚀 What Does This Project Do?
 
-Shl is a full-stack authentication and user management system that includes:
-
-- **User Registration & Login**: Secure authentication with bcrypt password hashing and JWT tokens
-- **Session Management**: Cookie-based session tracking with database persistence
-- **Role-Based Access Control**: Admin and User roles with middleware protection
-- **RESTful API**: Express-based backend with Prisma ORM for database operations
-- **Modern Frontend**: Vue 3 single-page application with Vite, Vue Router, and Pinia state management
-- **Styled UI**: Tailwind CSS for responsive and modern design
+Shl
 
 ## 🛠️ Technology Stack
 
