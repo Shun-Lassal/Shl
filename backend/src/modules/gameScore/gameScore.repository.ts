@@ -8,6 +8,11 @@ const defaultInclude = {
       id: true,
       name: true,
       email: true,
+      session: {
+        select: {
+          ipAddress: true,
+        },
+      },
     },
   },
   lobby: {

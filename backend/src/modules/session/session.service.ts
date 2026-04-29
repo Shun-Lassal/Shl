@@ -12,7 +12,11 @@ export class SessionService extends BaseService {
     this.repository = new SessionRepository();
   }
 
-  async createSession(userId: string, expiresAt: Date): Promise<string> {
+  async createSession(
+    userId: string,
+    expiresAt: Date,
+    meta?: { ipAddress?: string | null; userAgent?: string | null }
+  ): Promise<string> {
     if (!userId) {
       throw new ValidationError("User ID is required");
     }
@@ -25,7 +29,12 @@ export class SessionService extends BaseService {
     await this.repository.deleteByUserId(userId);
 
     // Create new session
-    const session = await this.repository.create({ userId, expiresAt });
+    const session = await this.repository.create({
+      userId,
+      expiresAt,
+      ipAddress: meta?.ipAddress ?? null,
+      userAgent: meta?.userAgent ?? null,
+    });
     return session.id;
   }
 

@@ -3,7 +3,7 @@ import { NotFoundError } from "../../shared/errors.js";
 import type { Session } from "./session.model.js";
 
 export class SessionRepository extends BaseRepository {
-  async create(data: { userId: string; expiresAt: Date }): Promise<Session> {
+  async create(data: { userId: string; expiresAt: Date; ipAddress?: string | null; userAgent?: string | null }): Promise<Session> {
     return this.db.session.create({ data });
   }
 

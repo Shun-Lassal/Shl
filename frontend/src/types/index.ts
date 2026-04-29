@@ -114,7 +114,7 @@ export interface ScoreboardRun {
   lobbyName: string;
   endedAt: string | null;
   position: number; // floor reached; -1 means finished game
-  players: { userId: string; name: string; position: number }[];
+  players: { scoreId: string; userId: string; name: string; position: number; ipAddress?: string | null }[];
 }
 
 // Auth types

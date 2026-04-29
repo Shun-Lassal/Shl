@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { BaseController } from "../../shared/base/index.js";
 import { LoginService } from "./login.service.js";
 import { config } from "../../shared/config.js";
+import { getRequestIp } from "../../shared/requestIp.js";
 
 export class LoginController extends BaseController {
   private loginService: LoginService;
@@ -14,7 +15,13 @@ export class LoginController extends BaseController {
   async loginUser(req: Request, res: Response): Promise<void> {
     await this.executeAsync(async () => {
       const { email, password } = req.body;
-      const result = await this.loginService.authenticate({ email, password });
+      const result = await this.loginService.authenticate(
+        { email, password },
+        {
+          ipAddress: getRequestIp(req),
+          userAgent: req.headers["user-agent"] ?? null,
+        }
+      );
 
       res
         .status(200)

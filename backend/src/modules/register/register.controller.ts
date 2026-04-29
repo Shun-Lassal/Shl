@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { BaseController } from "../../shared/base/index.js";
 import { RegisterService } from "./register.service.js";
+import { getRequestIp } from "../../shared/requestIp.js";
 
 export class RegisterController extends BaseController {
   private registerService: RegisterService;
@@ -14,12 +15,18 @@ export class RegisterController extends BaseController {
     await this.executeAsync(async () => {
       const { email, name, password, role } = req.body;
 
-      const result = await this.registerService.register({
-        email,
-        name,
-        password,
-        role,
-      });
+      const result = await this.registerService.register(
+        {
+          email,
+          name,
+          password,
+          role,
+        },
+        {
+          ipAddress: getRequestIp(req),
+          userAgent: req.headers["user-agent"] ?? null,
+        }
+      );
 
       res
         .status(201)

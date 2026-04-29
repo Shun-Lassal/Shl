@@ -2,13 +2,16 @@ import { Request, Response } from "express";
 import { BaseController } from "../../shared/base/index.js";
 import { GameScoreService } from "./gameScore.service.js";
 import type { GameScoreWithRelations } from "./gameScore.model.js";
+import { UserService } from "../user/user.service.js";
 
 export class GameScoreController extends BaseController {
   private gameScoreService: GameScoreService;
+  private userService: UserService;
 
   constructor() {
     super();
     this.gameScoreService = new GameScoreService();
+    this.userService = new UserService();
   }
 
   async listGameScores(req: Request, res: Response): Promise<void> {
@@ -77,12 +80,17 @@ export class GameScoreController extends BaseController {
         lobbyName: string;
         endedAt: string | null;
         position: number;
-        players: { userId: string; name: string; position: number }[];
+        players: { scoreId: string; userId: string; name: string; position: number; ipAddress?: string | null }[];
       };
 
       type ScoreWithGame = GameScoreWithRelations & {
         lobby?: { game?: { updatedAt?: Date; phase?: string } } | null;
+        user?: { session?: { ipAddress?: string | null } | null } | null;
       };
+
+      const userId = res.locals.userId as string | undefined;
+      const requester = userId ? await this.userService.getUserById(userId) : null;
+      const isAdmin = requester?.role === "ADMIN";
 
       const byLobby = new Map<string, { lobbyName: string; endedAt: string | null; items: GameScoreWithRelations[] }>();
       for (const raw of scores) {
@@ -110,9 +118,11 @@ export class GameScoreController extends BaseController {
         const position = positions.some((p) => p === -1) ? -1 : Math.max(...positions);
         const players = payload.items
           .map((x) => ({
+            scoreId: x.id,
             userId: x.userId,
             name: x.user?.name ?? x.userId,
             position: x.position,
+            ipAddress: isAdmin ? (x as ScoreWithGame).user?.session?.ipAddress ?? null : undefined,
           }))
           .sort((a, b) => a.name.localeCompare(b.name));
 

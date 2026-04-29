@@ -6,6 +6,7 @@ import { authApi } from '../api/auth';
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null);
   const isAuthenticated = computed(() => user.value !== null);
+  const isAdmin = computed(() => user.value?.role === 'ADMIN');
   const isLoading = ref(false);
   const error = ref<string | null>(null);
 
@@ -96,6 +97,7 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     user,
     isAuthenticated,
+    isAdmin,
     isLoading,
     error,
     setUser,

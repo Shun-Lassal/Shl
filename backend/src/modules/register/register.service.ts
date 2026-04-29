@@ -19,7 +19,10 @@ export class RegisterService extends BaseService {
     this.sessionService = new SessionService();
   }
 
-  async register(data: Register): Promise<{ sessionId: string; user: any }> {
+  async register(
+    data: Register,
+    meta?: { ipAddress?: string | null; userAgent?: string | null }
+  ): Promise<{ sessionId: string; user: any }> {
     // Validate input
     const validatedData = this.validate<Register>(registerSchema, data);
 
@@ -48,7 +51,7 @@ export class RegisterService extends BaseService {
 
     // Create session
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
-    const sessionId = await this.sessionService.createSession(user.id!, expiresAt);
+    const sessionId = await this.sessionService.createSession(user.id!, expiresAt, meta);
 
     // Return user without password
     const userWithoutPassword = {
